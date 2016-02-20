@@ -2,7 +2,7 @@
 namespace keeko\framework\foundation;
 
 use Symfony\Component\HttpFoundation\Request;
-use keeko\core\utils\TwigRenderTrait;
+use keeko\framework\utils\TwigRenderTrait;
 
 abstract class AbstractResponse {
 	
