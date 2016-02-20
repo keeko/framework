@@ -1,0 +1,36 @@
+{
+    "name": "keeko/app",
+    "description": "I am just a dummy app",
+    "type": "keeko-app",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gossi"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "keeko\\app\\": "src/"
+        }
+    },
+    "require": {
+        "keeko/core": "~0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4"
+    },
+    "extra": {
+        "keeko": {
+            "app": {
+                "title": "Dummy App",
+                "class": "keeko\\app\\DummyApp"
+            }
+        }
+    },
+    "repositories": {
+        "packagist": false
+    },
+    "config": {
+        "vendor-dir": "mordor"
+    }
+}

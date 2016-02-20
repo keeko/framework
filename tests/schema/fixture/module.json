@@ -1,0 +1,40 @@
+{
+    "name": "keeko/module",
+    "description": "I am just a dummy module",
+    "type": "keeko-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gossi"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "keeko\\app\\": "src/"
+        }
+    },
+    "require": {
+        "keeko/core": "~0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4"
+    },
+    "extra": {
+        "keeko": {
+            "module": {
+                "title": "Dummy Module",
+                "class": "keeko\\module\\DummyModule",
+                "actions": {
+                    "dashboard": {
+                        "title": "Admin overview",
+                        "class": "keeko\\module\\actions\\DashboardAction",
+                        "acl": ["admin"],
+                        "response": {
+                            "json": "keeko\\module\\responses\\DashboardJsonResponse"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "name": "basic/package",
+    "description": "I am just a dummy",
+    "type": "package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "gossi"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "basic\\package\\": "src/"
+        }
+    },
+    "require": {
+        "phootwork/collection": "~1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~4"
+    },
+    "extra": {
+        "moop": "value",
+        "doop": {
+            "some": "other-value"
+        }
+    }
+}
