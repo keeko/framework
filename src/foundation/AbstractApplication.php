@@ -6,6 +6,7 @@ use keeko\core\model\Localization;
 use keeko\framework\kernel\KernelTargetInterface;
 use keeko\framework\kernel\Page;
 use keeko\framework\service\ServiceContainer;
+use keeko\framework\utils\TwigRenderTrait;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractApplication implements KernelTargetInterface {

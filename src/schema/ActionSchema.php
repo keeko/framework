@@ -16,7 +16,7 @@ class ActionSchema extends SubSchema {
 	/** @var string */
 	private $title;
 	
-	/** @var description */
+	/** @var string */
 	private $description;
 	
 	/** @var string */

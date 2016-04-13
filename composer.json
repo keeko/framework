@@ -48,10 +48,10 @@
 		"symfony/translation" : "~3 || ~2",
 		"symfony/event-dispatcher" : "~3 || ~2",
 		"tobscure/json-api" : "~0",
-		"twig/twig" : "~1"
+		"twig/twig" : "~1",
+		"keeko/core" : "dev-master@dev"
 	},
 	"require-dev" : {
-		"phpunit/phpunit" : "~4",
-		"keeko/core": "dev-master@dev"
+		"phpunit/phpunit" : "~4"
 	}
 }

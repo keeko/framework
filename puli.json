@@ -5,6 +5,10 @@
         "bootstrap-file": "vendor/autoload.php"
     },
     "packages": {
+        "composer/ca-bundle": {
+            "install-path": "vendor/composer/ca-bundle",
+            "installer": "composer"
+        },
         "composer/composer": {
             "install-path": "vendor/composer/composer",
             "installer": "composer"
@@ -40,11 +44,14 @@
         },
         "keeko/core": {
             "install-path": "vendor/keeko/core",
-            "installer": "composer",
-            "env": "dev"
+            "installer": "composer"
         },
         "monolog/monolog": {
             "install-path": "vendor/monolog/monolog",
+            "installer": "composer"
+        },
+        "paragonie/random_compat": {
+            "install-path": "vendor/paragonie/random_compat",
             "installer": "composer"
         },
         "phootwork/collection": {

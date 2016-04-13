@@ -27,6 +27,18 @@ class Preferences {
 		return $default;
 	}
 	
+	public function getBool($key, $default = null) {
+		return (bool) $this->get($key, $default);
+	}
+	
+	public function getInt($key, $default = null) {
+		return (int) $this->get($key, $default);
+	}
+	
+	public function getFloat($key, $default = null) {
+		return (float) $this->get($key, $default);
+	}
+	
 	public function set($key, $value) {
 		$this->preferences[$key] = $value;
 	}

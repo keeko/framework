@@ -211,11 +211,14 @@ class InstallerApplication extends AbstractApplication {
 		$pref->save();
 
 		// 3) modules
+		$this->installModule('keeko/core');
+		$this->activateModule('keeko/core');
+		
 		$this->installModule('keeko/user');
 		$this->activateModule('keeko/user');
 		
-		$this->installModule('keeko/group');
-		$this->activateModule('keeko/group');
+// 		$this->installModule('keeko/group');
+// 		$this->activateModule('keeko/group');
 		
 		$this->installModule('keeko/auth');
 		$this->activateModule('keeko/auth');

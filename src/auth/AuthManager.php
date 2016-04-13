@@ -1,11 +1,11 @@
 <?php
 namespace keeko\framework\auth;
 
-use Symfony\Component\HttpFoundation\Request;
-use keeko\core\model\UserQuery;
+use keeko\core\model\Session;
+use keeko\core\model\SessionQuery;
 use keeko\core\model\User;
-use keeko\core\model\AuthQuery;
-use keeko\core\model\Auth;
+use keeko\core\model\UserQuery;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuthManager {
 	
@@ -14,8 +14,8 @@ class AuthManager {
 	 */
 	private $user;
 	
-	/** @var Auth */
-	private $auth;
+	/** @var Session */
+	private $session;
 	
 	private $recognized = false;
 	
@@ -59,11 +59,11 @@ class AuthManager {
 	}
 	
 	private function authToken($token) {
-		$auth = AuthQuery::create()->findOneByToken($token);
+		$session = SessionQuery::create()->findOneByToken($token);
 
-		if ($auth !== null) {
-			$this->auth = $auth;
-			$this->user = $auth->getUser();
+		if ($session !== null) {
+			$this->session = $session;
+			$this->user = $session->getUser();
 			$this->recognized = true;
 			$this->authenticated = true;
 			return true;
@@ -72,6 +72,10 @@ class AuthManager {
 		return false;
 	}
 	
+	/**
+	 * TODO: Creates a new session, every request...
+	 * @param Request $request
+	 */
 	private function authBasic(Request $request) {
 		return $this->login($request->getUser(), $request->getPassword());
 	}
@@ -94,13 +98,13 @@ class AuthManager {
 				$this->authenticated = true;
 				
 				// delete an old auth-token first ...
-				AuthQuery::create()->filterByUserId($user->getId())->delete();
+				SessionQuery::create()->filterByUserId($user->getId())->delete();
 				
 				// ... create a new one
-				$this->auth = new Auth();
-				$this->auth->setToken(self::generateToken());
-				$this->auth->setUser($user);
-				$this->auth->save();
+				$this->session = new Session();
+				$this->session->setToken(self::generateToken());
+				$this->session->setUser($user);
+				$this->session->save();
 				return true;
 			}
 		}
@@ -112,12 +116,13 @@ class AuthManager {
 		if ($user === null) {
 			$user = $this->user;
 		}
-		$success = AuthQuery::create()->filterByUser($user)->delete() > 0;
+		$success = SessionQuery::create()->filterByUser($user)->delete() > 0;
 
 		if ($success) {
 			$this->user = $this->getGuest();
 			$this->recognized = false;
 			$this->authenticated = false;
+			$this->session = null;
 		}
 		
 		return $success;
@@ -131,8 +136,8 @@ class AuthManager {
 		return $this->user;
 	}
 	
-	public function getAuth() {
-		return $this->auth;
+	public function getSession() {
+		return $this->session;
 	}
 	
 	public function isRecognized() {

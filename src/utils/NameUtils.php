@@ -2,6 +2,8 @@
 namespace keeko\framework\utils;
 
 class NameUtils {
+	
+	private static $pluralizer;
 
 	/**
 	 * Transforms a given input into StudlyCase
@@ -46,7 +48,7 @@ class NameUtils {
 		return str_replace('-', '_', self::dasherize($input));
 	}
 	
-	private static function dasherize($input) {
+	public static function dasherize($input) {
 		return trim(strtolower(preg_replace_callback('/([A-Z _])/', function($matches) {
 			$suffix = '';
 			if (preg_match('/[A-Z]/', $matches[0])) {

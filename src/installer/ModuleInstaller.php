@@ -13,10 +13,10 @@ use keeko\core\model\Group;
 use keeko\core\model\GroupQuery;
 use keeko\core\model\Module;
 use keeko\core\model\ModuleQuery;
-use phootwork\json\Json;
-use keeko\framework\service\ServiceContainer;
 use keeko\framework\events\ModuleEvent;
 use keeko\framework\schema\ModuleSchema;
+use keeko\framework\service\ServiceContainer;
+use phootwork\json\Json;
 
 class ModuleInstaller extends AbstractPackageInstaller {
 	

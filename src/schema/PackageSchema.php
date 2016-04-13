@@ -155,12 +155,16 @@ class PackageSchema extends RootSchema implements Arrayable {
 	 * @return $this
 	 */
 	public function setName($name) {
-		$this->setFullName($name . '/' . $this->vendor);
+		$this->setFullName($this->vendor . '/' . $name);
 		return $this;
 	}
 	
 	public function getName() {
 		return $this->name;
+	}
+	
+	public function getCleanName() {
+		return str_replace(['keeko-', '-app', '-module'], '', $this->name);
 	}
 	
 	public function getVendor() {

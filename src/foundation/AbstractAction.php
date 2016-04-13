@@ -14,28 +14,18 @@ abstract class AbstractAction implements KernelTargetInterface {
 	/** @var AbstractModule */
 	protected $module;
 
-	/** @var \Twig_Environment */
-	protected $twig;
-
 	/** @var array */
 	protected $params = [];
 
-	/** @var AbstractResponse */
-	protected $response;
+	/** @var AbstractResponder */
+	protected $responder;
 	
 	private $domainBackup;
 
-	public function __construct(Action $model, AbstractModule $module, AbstractResponse $response) {
+	public function __construct(Action $model, AbstractModule $module, AbstractResponder $responder) {
 		$this->model = $model;
-		$this->response = $response;
-		
 		$this->module = $module;
-		$templatePath = sprintf('%s/%s/templates/', KEEKO_PATH_MODULES, $module->getModel()->getName());
-	
-		if (file_exists($templatePath)) {
-			$loader = new \Twig_Loader_Filesystem($templatePath);
-			$this->twig = new \Twig_Environment($loader);
-		}
+		$this->responder = $responder;
 	}
 	
 	/**
@@ -119,15 +109,6 @@ abstract class AbstractAction implements KernelTargetInterface {
 	 */
 	protected function getModule() {
 		return $this->module;
-	}
-	
-	/**
-	 * Returns the modules twig
-	 *
-	 * @return \Twig_Environment
-	 */
-	protected function getTwig() {
-		return $this->module->getTwig();
 	}
 	
 	abstract public function run(Request $request);
