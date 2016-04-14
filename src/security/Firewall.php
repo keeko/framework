@@ -14,12 +14,12 @@ class Firewall {
 	private $service;
 	
 	/** @var Map */
-	private $permissionTables;
+	private $permissionTable;
 
 	public function __construct(ServiceContainer $service) {
 		$this->service = $service;
 		$this->user = $service->getAuthManager()->getUser();
-		$this->permissionTables = new Map();
+		$this->permissionTable = new Map();
 	}
 	
 	public function hasPermission($module, $action, User $user = null) {
@@ -45,8 +45,8 @@ class Firewall {
 	 */
 	private function getPermissionTable(User $user) {
 		$userId = $user->getId();
-		if ($this->permissionTables->has($userId)) {
-			return $this->permissionTables->get($userId);
+		if ($this->permissionTable->has($userId)) {
+			return $this->permissionTable->get($userId);
 		}
 		
 		// always allow what guests can do
@@ -68,9 +68,9 @@ class Firewall {
 			}
 		}
 		
-		$this->permissionsTables->set($userId, $permissionTable);
+		$this->permissionTable->set($userId, $permissionTable);
 		
-		return $this->permissionsTables->get($userId);
+		return $this->permissionTable->get($userId);
 	}
 	
 	private function isGuest(User $user) {
