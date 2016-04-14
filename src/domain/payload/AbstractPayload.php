@@ -1,7 +1,7 @@
 <?php
 namespace keeko\framework\domain\payload;
 
-class AbstractPayload {
+class AbstractPayload implements PayloadInterface {
 	
 	protected $payload = array();
 	
