@@ -22,7 +22,7 @@ abstract class AbstractModelSerializer extends AbstractSerializer implements Mod
 		return $id + $attributes;
 	}
 	
-	public function hydrateRelationships($model, $data) {
+	protected function hydrateRelationships($model, $data) {
 		$relationships = isset($data['relationships']) ? $data['relationships'] : [];
 	
 		foreach (array_keys($this->getRelationships()) as $rel) {
@@ -33,5 +33,9 @@ abstract class AbstractModelSerializer extends AbstractSerializer implements Mod
 				}
 			}
 		}
+	}
+	
+	public function getMeta($model) {
+		return [];
 	}
 }
