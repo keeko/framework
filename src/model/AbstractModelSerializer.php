@@ -7,6 +7,13 @@ use Tobscure\JsonApi\Relationship;
 
 abstract class AbstractModelSerializer extends AbstractSerializer implements ModelSerializerInterface, Arrayable {
 	
+	/**
+	 * 
+	 * @param Relationship $relationship
+	 * @param mixed $model
+	 * @param string $related
+	 * @return Relationship
+	 */
 	protected function addRelationshipSelfLink(Relationship $relationship, $model, $related) {
 		$links = $relationship->getLinks();
 		$links = $links + [
@@ -36,6 +43,10 @@ abstract class AbstractModelSerializer extends AbstractSerializer implements Mod
 	}
 	
 	public function getMeta($model) {
+		return [];
+	}
+	
+	public function getRelationships() {
 		return [];
 	}
 }
