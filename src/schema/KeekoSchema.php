@@ -65,7 +65,11 @@ class KeekoSchema extends SubSchema {
 		return $this->app;
 	}
 	
-	
+	/**
+	 * 
+	 * @param string $type
+	 * @return KeekoPackageSchema
+	 */
 	public function getKeekoPackage($type) {
 		switch ($type) {
 			case 'app':

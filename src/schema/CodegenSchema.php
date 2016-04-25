@@ -3,6 +3,7 @@ namespace keeko\framework\schema;
 
 use phootwork\collection\CollectionUtils;
 use phootwork\collection\Map;
+use phootwork\collection\ArrayList;
 
 class CodegenSchema extends RootSchema {
 	
@@ -12,6 +13,9 @@ class CodegenSchema extends RootSchema {
 	/** @var Map */
 	private $models;
 	
+	/** @var ArrayList */
+	private $excluded;
+	
 	public function __construct($contents = []) {
 		$this->parse($contents);
 	}
@@ -20,6 +24,7 @@ class CodegenSchema extends RootSchema {
 		$this->data = CollectionUtils::toMap($contents);
 		
 		$this->models = $this->data->get('models', new Map());
+		$this->excluded = $this->data->get('excluded', new ArrayList());
 	}
 	
 	/**
@@ -67,5 +72,14 @@ class CodegenSchema extends RootSchema {
 	 */
 	public function getReadFilter($modelName) {
 		return $this->getArray($modelName, 'read', 'filter');
+	}
+	
+	/**
+	 * Return the excluded models
+	 * 
+	 * @return ArrayList
+	 */
+	public function getExcludedModels() {
+		return $this->excluded;
 	}
 }
