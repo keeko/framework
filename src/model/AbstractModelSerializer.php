@@ -2,10 +2,9 @@
 namespace keeko\framework\model;
 
 use keeko\framework\model\ModelSerializerInterface;
-use phootwork\lang\Arrayable;
 use Tobscure\JsonApi\Relationship;
 
-abstract class AbstractModelSerializer extends AbstractSerializer implements ModelSerializerInterface, Arrayable {
+abstract class AbstractModelSerializer extends AbstractSerializer implements ModelSerializerInterface {
 	
 	/**
 	 * 

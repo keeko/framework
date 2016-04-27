@@ -3,6 +3,12 @@ namespace keeko\framework\service;
 
 use \Twig_Environment;
 use \Twig_SimpleFunction;
+use keeko\framework\foundation\ModuleManager;
+use keeko\framework\foundation\PackageManager;
+use keeko\framework\kernel\AbstractKernel;
+use keeko\framework\preferences\PreferenceLoader;
+use keeko\framework\security\AuthManager;
+use keeko\framework\security\Firewall;
 use Puli\Discovery\Api\Discovery;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\TwigExtension\PuliExtension;
@@ -10,12 +16,6 @@ use Puli\TwigExtension\PuliTemplateLoader;
 use Puli\UrlGenerator\Api\UrlGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Translation\Loader\JsonFileLoader;
-use keeko\framework\kernel\AbstractKernel;
-use keeko\framework\foundation\PackageManager;
-use keeko\framework\foundation\ModuleManager;
-use keeko\framework\auth\AuthManager;
-use keeko\framework\preferences\PreferenceLoader;
-use keeko\framework\security\Firewall;
 
 class ServiceContainer {
 

@@ -1,8 +1,8 @@
 <?php
 namespace keeko\framework\kernel;
 
-use Symfony\Component\HttpFoundation\Request;
 use keeko\framework\routing\ApplicationRouter;
+use Symfony\Component\HttpFoundation\Request;
 
 class AppKernel extends AbstractKernel {
 

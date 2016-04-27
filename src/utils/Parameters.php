@@ -1,9 +1,9 @@
 <?php
 namespace keeko\framework\utils;
 
-use Tobscure\JsonApi\Parameters;
+use Tobscure\JsonApi\Parameters as BaseParameters;
 
-class Parameters extends Parameters {
+class Parameters extends BaseParameters {
 	
 	public function getPage($key, $default = null) {
 		$page = $this->getInput('page', []);

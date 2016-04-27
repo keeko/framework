@@ -5,7 +5,7 @@ class AbstractPayload implements PayloadInterface {
 	
 	protected $payload = array();
 	
-	public function __construct(array $payload) {
+	public function __construct(array $payload = []) {
 		$this->payload = $payload;
 	}
 	

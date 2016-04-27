@@ -16,7 +16,7 @@ abstract class AbstractSerializer implements SerializerInterface {
 		];
 	}
 	
-	public function getAttributes($model, $fields = null) {
+	public function getAttributes($model, array $fields = null) {
 		return [];
 	}
 

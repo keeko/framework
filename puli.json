@@ -26,12 +26,24 @@
             "installer": "composer",
             "env": "dev"
         },
+        "egeloen/http-adapter": {
+            "install-path": "vendor/egeloen/http-adapter",
+            "installer": "composer"
+        },
+        "flow/jsonpath": {
+            "install-path": "vendor/flow/jsonpath",
+            "installer": "composer"
+        },
         "gossi/propel-l10n-behavior": {
             "install-path": "vendor/gossi/propel-l10n-behavior",
             "installer": "composer"
         },
         "gossi/swagger": {
             "install-path": "vendor/gossi/swagger",
+            "installer": "composer"
+        },
+        "igorw/get-in": {
+            "install-path": "vendor/igorw/get-in",
             "installer": "composer"
         },
         "justinrainbow/json-schema": {
@@ -48,6 +60,10 @@
         },
         "monolog/monolog": {
             "install-path": "vendor/monolog/monolog",
+            "installer": "composer"
+        },
+        "mustangostang/spyc": {
+            "install-path": "vendor/mustangostang/spyc",
             "installer": "composer"
         },
         "paragonie/random_compat": {
@@ -115,8 +131,16 @@
             "installer": "composer",
             "env": "dev"
         },
+        "piwik/device-detector": {
+            "install-path": "vendor/piwik/device-detector",
+            "installer": "composer"
+        },
         "propel/propel": {
             "install-path": "vendor/propel/propel",
+            "installer": "composer"
+        },
+        "psr/http-message": {
+            "install-path": "vendor/psr/http-message",
             "installer": "composer"
         },
         "psr/log": {
@@ -272,6 +296,14 @@
         },
         "webmozart/path-util": {
             "install-path": "vendor/webmozart/path-util",
+            "installer": "composer"
+        },
+        "willdurand/geocoder": {
+            "install-path": "vendor/willdurand/geocoder",
+            "installer": "composer"
+        },
+        "zendframework/zend-diactoros": {
+            "install-path": "vendor/zendframework/zend-diactoros",
             "installer": "composer"
         }
     }
