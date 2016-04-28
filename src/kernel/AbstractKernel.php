@@ -2,6 +2,7 @@
 namespace keeko\framework\kernel;
 
 use keeko\framework\events\KernelTargetEvent;
+use keeko\framework\foundation\AbstractApplication;
 use keeko\framework\service\ServiceContainer;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;

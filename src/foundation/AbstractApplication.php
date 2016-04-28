@@ -13,14 +13,10 @@ abstract class AbstractApplication implements KernelTargetInterface {
 	
 	use TwigRenderTrait;
 
-	/**
-	 * @var Application
-	 */
+	/** @var Application */
 	protected $model;
 
-	/**
-	 * @var Localization
-	 */
+	/** @var Localization */
 	protected $localization;
 
 	protected $rootUrl;
@@ -140,26 +136,28 @@ abstract class AbstractApplication implements KernelTargetInterface {
 		return $this->destinationPath;
 	}
 
+	/**
+	 * Set the localization of this app
+	 * 
+	 * @param Localization $localization
+	 */
 	public function setLocalization(Localization $localization) {
 		$this->localization = $localization;
 	}
 
 	/**
-	 *
+	 * Returns the localization of this app
+	 * 
 	 * @return Localization
 	 */
 	public function getLocalization() {
 		return $this->localization;
 	}
 	
-	public function getTwig() {
-		return $this->getRawTwig(sprintf('%s/%s/templates/', KEEKO_PATH_APPS, $this->model->getName()));
-	}
-	
-	protected function runAction(AbstractAction $action, Request $request) {
-		$runner = $this->getServiceContainer()->getRunner();
-		return $runner->run($action, $request);
-	}
+// 	protected function runAction(AbstractAction $action, Request $request) {
+// 		$runner = $this->getServiceContainer()->getRunner();
+// 		return $runner->run($action, $request);
+// 	}
 	
 	abstract public function run(Request $request);
 	

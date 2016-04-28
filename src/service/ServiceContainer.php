@@ -9,13 +9,13 @@ use keeko\framework\kernel\AbstractKernel;
 use keeko\framework\preferences\PreferenceLoader;
 use keeko\framework\security\AuthManager;
 use keeko\framework\security\Firewall;
+use keeko\framework\utils\KeekoJsonTranslationLoader;
 use Puli\Discovery\Api\Discovery;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\TwigExtension\PuliExtension;
 use Puli\TwigExtension\PuliTemplateLoader;
 use Puli\UrlGenerator\Api\UrlGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Translation\Loader\JsonFileLoader;
 
 class ServiceContainer {
 
@@ -163,7 +163,7 @@ class ServiceContainer {
 			$app = $this->getKernel()->getApplication();
 			$lang = $app->getLocalization()->getLanguage()->getAlpha2();
 			$this->translator = new KeekoTranslator($this, $lang);
-			$this->translator->addLoader('json', new JsonFileLoader());
+			$this->translator->addLoader('json', new KeekoJsonTranslationLoader($this));
 			$this->translator->setFallbackLocales(['en']);
 		}
 		
@@ -247,9 +247,10 @@ class ServiceContainer {
 		
 			// firewall
 			$firewall = $this->getFirewall();
-			$this->twig->addFunction(new Twig_SimpleFunction('hasPermission', function ($module, $action) use ($firewall) {
+			$access = function ($module, $action) use ($firewall) {
 				return $firewall->hasPermission($module, $action);
-			}));
+			};
+			$this->twig->addFunction(new Twig_SimpleFunction('hasPermission', $access));
 		}
 		
 		return $this->twig;

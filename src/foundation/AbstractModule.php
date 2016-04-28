@@ -8,6 +8,9 @@ use keeko\core\model\User;
 use keeko\framework\exceptions\ModuleException;
 use keeko\framework\exceptions\PermissionDeniedException;
 use keeko\framework\service\ServiceContainer;
+use phootwork\lang\Text;
+use keeko\framework\schema\ActionSchema;
+use keeko\framework\schema\PackageSchema;
 
 abstract class AbstractModule {
 	
@@ -184,55 +187,71 @@ abstract class AbstractModule {
 		
 		$class = new $className($model, $this, $response);
 		
-// 		// l10n
-// 		$app = $this->getServiceContainer()->getApplication();
-// 		$lang = $app->getLocalization()->getLanguage()->getAlpha2();
-// 		$country = $app->getLocalization()->getCountry()->getAlpha2();
-// 		$l10n = $this->getPath() . 'l10n/';
-// 		$locale = $lang . '_' . $country;
 		
-// 		// load module l10n
-// 		$this->addL10nFile('module', $l10n, $lang, $locale, $class);
+		// l10n
+		// ------------
+		$app = $this->getServiceContainer()->getKernel()->getApplication();
+		$locale = $app->getLocalization()->getLocale();
 		
-// 		// load additional l10n files
-// 		if (isset($this->actions[$actionName]['l10n'])) {
-// 			foreach ($this->actions[$actionName]['l10n'] as $file) {
-// 				$this->addL10nFile($file, $l10n, $lang, $locale, $class);
-// 			}
-// 		}
-			
-// 		// load action l10n
-// 		$this->addL10nFile(sprintf('actions/%s', $actionName), $l10n, $lang, $locale, $class);
+		// load module l10n
+		$this->loadLocaleFile('module', $locale, $class);
 		
-// 		// assets
-// 		$page = $app->getPage();
-// 		$moduleUrl = sprintf('%s/_keeko/modules/%s/', $app->getRootUrl(), $this->getName());
-// 		if (isset($this->actions[$actionName]['assets']['styles'])) {
-// 			foreach ($this->actions[$actionName]['assets']['styles'] as $style) {
-// 				$page->addStyle($moduleUrl . $style);
-// 			}
-// 		}
+		// load additional l10n files
+		foreach ($action->getL10n() as $file) {
+			$this->loadLocaleFile($file, $locale, $class);
+		}
+
+		// load action l10n
+		$this->loadLocaleFile(sprintf('actions/%s', $actionName), $locale, $class);
 		
-// 		if (isset($this->actions[$actionName]['assets']['scripts'])) {
-// 			foreach ($this->actions[$actionName]['assets']['scripts'] as $script) {
-// 				$page->addScript($moduleUrl . $script);
-// 			}
-// 		}
+		
+		// assets
+		// ------------
+		$page = $app->getPage();
+		
+		// scripts
+		foreach ($action->getScripts() as $script) {
+			$page->addScript($script);
+		}
+		
+		// styles
+		foreach ($action->getStyles() as $style) {
+			$page->addStyle($style);
+		}
+
 
 		return $class;
 	}
 	
-	private function addL10nFile($file, $dir, $lang, $locale, $class) {
+	/**
+	 * @param string $file
+	 * @param string $locale
+	 * @param AbstractAction $class
+	 */
+	private function loadLocaleFile($file, $locale, AbstractAction $class) {
+		$lang = \Locale::getPrimaryLanguage($locale);
 		$translator = $this->getServiceContainer()->getTranslator();
-		$langPath = sprintf('%s%s/%s.json', $dir, $lang, $file);
-		$localePath = sprintf('%s%s/%s.json', $dir, $locale, $file);
+		$repo = $this->getServiceContainer()->getResourceRepository();
 		
-		if (file_exists($langPath)) {
-			$translator->addResource('json', $langPath, $lang, $class->getCanonicalName());
+		// load locale
+		$l10n = $file;
+		if (!Text::create($l10n)->startsWith('/')) {
+			$l10n = sprintf('%s/locales/%s/%s', $this->package->getFullName(), $locale, $file);
 		}
-		
-		if (file_exists($localePath)) {
-			$translator->addResource('json', $langPath, $locale, $class->getCanonicalName());
+		if ($repo->contains($l10n)) {
+			$translator->addResource('json', $l10n, $locale, $class->getCanonicalName());
+		}
+
+		// load lang
+		if ($lang != $locale) {
+			$l10n = $file;
+			if (!Text::create($l10n)->startsWith('/')) {
+				$l10n = sprintf('%s/locales/%s/%s', $this->package->getFullName(), $lang, $file);
+			}
+			
+			if ($repo->contains($l10n)) {
+				$translator->addResource('json', $l10n, $lang, $class->getCanonicalName());
+			}
 		}
 	}
 	

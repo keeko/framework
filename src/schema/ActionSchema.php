@@ -25,6 +25,15 @@ class ActionSchema extends SubSchema {
 	/** @var ArrayList<string> */
 	private $acl;
 	
+	/** @var ArrayList */
+	private $l10n;
+	
+	/** @var ArrayList */
+	private $scripts;
+	
+	/** @var ArrayList */
+	private $styles;
+	
 	/** @var Map<string, string> */
 	private $response;
 	
@@ -45,16 +54,31 @@ class ActionSchema extends SubSchema {
 		
 		$this->acl = new ArrayList($data->get('acl', []));
 		$this->response = new Map($data->get('response', []));
+		$this->l10n = new ArrayList($data->get('l10n', []));
+		$this->scripts = new ArrayList($data->get('scripts', []));
+		$this->styles = new ArrayList($data->get('styles', []));
 	}
 	
 	public function toArray() {
-		return [
+		$arr = [
 			'title' => $this->title,
 			'description' => $this->description,
 			'class' => $this->class,
 			'acl' => $this->acl->toArray(),
-			'response' => $this->response->toArray()
+			'response' => $this->response->toArray(),
+			'l10n' => $this->l10n->toArray(),
+			'scripts' => $this->scripts->toArray(),
+			'styles' => $this->styles->toArray()
 		];
+
+		$ret = [];
+		foreach ($arr as $k => $v) {
+			if (!empty($v)) {
+				$ret[$k] = $v;
+			}
+		}
+		
+		return $ret;
 	}
 	
 	public function getName() {
@@ -114,6 +138,12 @@ class ActionSchema extends SubSchema {
 		return $this->acl;
 	}
 	
+	/**
+	 * Checks whether a response with the given type is present
+	 * 
+	 * @param string $type
+	 * @return boolean
+	 */
 	public function hasResponse($type) {
 		return $this->response->has($type);
 	}
@@ -124,5 +154,26 @@ class ActionSchema extends SubSchema {
 	
 	public function getResponse($type) {
 		return $this->response->get($type);
+	}
+	
+	/**
+	 * @return ArrayList
+	 */
+	public function getL10n() {
+		return $this->l10n;
+	}
+	
+	/**
+	 * @return ArrayList
+	 */
+	public function getScripts() {
+		return $this->scripts;
+	}
+	
+	/**
+	 * @return ArrayList
+	 */
+	public function getStyles() {
+		return $this->styles;
 	}
 }

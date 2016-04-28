@@ -52,7 +52,6 @@ class KeekoTranslator extends Translator implements EventSubscriberInterface {
 		// check if it has a plural
 		if (isset($parameters['count'])) {
 			$count = $parameters['count'];
-			unset($parameters['count']);
 			return $this->transChoice($id, $count, $parameters, $domain, $locale);
 		}
 
@@ -81,7 +80,7 @@ class KeekoTranslator extends Translator implements EventSubscriberInterface {
 	private function prepareParams(array $parameters) {
 		$params = [];
 		foreach ($parameters as $key => $value) {
-			$params['{' . $key . '}'] = $value;
+			$params['%' . $key . '%'] = $value;
 		}
 		
 		return $params;
