@@ -24,9 +24,7 @@ trait TwigRenderTrait {
 					'root_url' => $app->getRootUrl(),
 					'app_url' => $app->getAppUrl(),
 					'app_path' => $app->getAppPath(),
-					'destination' => $app->getDestinationPath(),
-					'target' => $app->getTargetPath(),
-					'tail' => $app->getTailPath()
+					'destination' => $app->getDestinationPath()
 				]
 			],
 			'user' => $user

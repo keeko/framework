@@ -8,6 +8,7 @@ class SystemPreferences extends Preferences {
 	const ROOT_URL = 'root_url';
 	const API_URL = 'api_url';
 	const API_VERSION = 'api_version';
+	const ACCOUNT_URL = 'root_url';
 	
 	const USER_LOGIN = 'login';
 	const USER_NAMES_REQUIRED = 'user_names_required';
@@ -38,6 +39,13 @@ class SystemPreferences extends Preferences {
 	 * @var string
 	 */
 	const LOGIN_EMAIL = 'email';
+	
+	/**
+	 * Email or username login
+	 * 
+	 * @var string
+	 */
+	const LOGIN_USERNAME_EMAIL = 'username_email';
 	
 	/**
 	 * Username display value
@@ -119,6 +127,16 @@ class SystemPreferences extends Preferences {
 	public function getRootUrl() {
 		return $this->get(self::ROOT_URL);
 	}
+	
+	/**
+	 * Returns the accout url for the installed plattform
+	 * 
+	 * @return string
+	 */
+	public function getAccountUrl() {
+		return $this->get(self::ACCOUNT_URL);
+	}
+	
 	
 	/**
 	 * Returns whether username or email is used as login

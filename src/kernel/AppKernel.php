@@ -63,16 +63,7 @@ class AppKernel extends AbstractKernel {
 			printf('<b>[%s] %s</b><pre>%s</pre>', get_class($e), $e->getMessage(), $e->getTraceAsString());
 		}
 	}
-	
-	/**
-	 * Returns the application
-	 *
-	 * @return AbstractApplication
-	 */
-	public function getApplication() {
-		return $this->app;
-	}
-	
+
 	private function redirect($url) {
 		header('Location: ' . $url);
 		exit(0);

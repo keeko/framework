@@ -12,8 +12,11 @@ use keeko\framework\exceptions\ModuleException;
 use keeko\framework\service\ServiceContainer;
 use phootwork\collection\Map;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use keeko\framework\utils\LocaleLoaderTrait;
 
 class ModuleManager implements EventSubscriberInterface {
+	
+	use LocaleLoaderTrait;
 	
 	/** @var Map */
 	private $loadedModules;
@@ -45,6 +48,10 @@ class ModuleManager implements EventSubscriberInterface {
 				$this->activatedModules->set($module->getName(), $module);
 			}
 		}
+	}
+	
+	protected function getServiceContainer() {
+		return $this->service;
 	}
 	
 	/**
@@ -147,52 +154,12 @@ class ModuleManager implements EventSubscriberInterface {
 		$module = new $className($model, $this->service);
 		$this->loadedModules->set($packageName, $module);
 		
+		// load locale
+		$file = sprintf('/%s/locales/{locale}/module.json', $packageName);
+		$this->loadLocaleFile($file, $module->getCanonicalName());
+
 		return $module;
 	}
-	
-	/**
-	 * @TODO still old api
-	 * @param string $packageName
-	 */
-	public function loadTranslations($packageName) {
-		// load l10n
-// 		$app = $this->service->getKernel()->getApplication();
-// 		$translator = $this->service->getTranslator();
-// 		$lang = $app->getLocalization()->getLanguage()->getAlpha2();
-// 		$country = $app->getLocalization()->getCountry()->getAlpha2();
-// 		$l10n = $mod->getPath() . 'l10n/';
-// 		$locale = $lang . '_' . $country;
-		
-		
-		
-// 		$langPath = sprintf('%s%s/module.json', $l10n, $lang);
-// 		$localePath = sprintf('%s%s/module.json', $l10n, $locale);
-		
-// 		if (file_exists($langPath)) {
-// 			$translator->addResource('json', $langPath, $lang, $mod->getCanonicalName());
-// 		}
-		
-// 		if (file_exists($localePath)) {
-// 			$translator->addResource('json', $langPath, $locale, $mod->getCanonicalName());
-// 		}
-	}
-
-// 	public function update($packageName) {
-// 		if (!$this->installedModules->has($packageName)) {
-// 			throw new ModuleException(sprintf('Module (%s) not installed for activation', $packageName));
-// 		}
-// 		$model = $this->installedModules->get($packageName);
-// 		$model->setActivatedVersion($model->getInstalledVersion());
-// 		$model->save();
-// 		$module = $this->service->getPackageManager()->getModuleSchema($packageName);
-		
-// 		// install actions
-// 		$extra = $package->getExtra();
-// 		if (isset($extra['keeko']) && isset($extra['keeko']['module'])) {
-// 			$actions = $this->installActions($model, $extra['keeko']['module']);
-// 			$this->installApi($model, $extra['keeko']['module'], $actions);
-// 		}
-// 	}
 
 	private function installActions(Module $module, $data) {
 		if (!isset($data['actions'])) {

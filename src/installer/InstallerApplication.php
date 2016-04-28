@@ -183,9 +183,11 @@ class InstallerApplication extends AbstractApplication {
 		$this->installApp('keeko/developer-app');
 		$this->setupApp('keeko/developer-app', $rootUrl . '/developer/', $locale);
 		
-		// website
-// 		$websiteApp = $this->installApp('keeko/website-app');
-		
+		// account
+		$accountUrl = $rootUrl . '/account/';
+		$this->installApp('keeko/account-app');
+		$this->setupApp('keeko/account-app', $accountUrl, $locale);
+
 		
 		// 2) preferences
 		$core = $this->service->getPackageManager()->getComposerPackage('keeko/core');
@@ -209,6 +211,12 @@ class InstallerApplication extends AbstractApplication {
 		$pref->setKey(SystemPreferences::API_VERSION);
 		$pref->setValue('1');
 		$pref->save();
+		
+		$pref = new Preference();
+		$pref->setKey(SystemPreferences::ACCOUNT_URL);
+		$pref->setValue($accountUrl);
+		$pref->save();
+
 
 		// 3) modules
 		$this->installModule('keeko/core');

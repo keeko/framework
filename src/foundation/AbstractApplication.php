@@ -128,12 +128,21 @@ abstract class AbstractApplication implements KernelTargetInterface {
 		return $this->destinationPath;
 	}
 	
-	public function getTargetPath() {
-		return $this->destinationPath;
-	}
+// 	public function getTargetPath() {
+// 		return $this->destinationPath;
+// 	}
 	
-	public function getTailPath() {
-		return $this->destinationPath;
+// 	public function getTailPath() {
+// 		return $this->destinationPath;
+// 	}
+	
+	/**
+	 * Returns the full url for the current page
+	 * 
+	 * @return string
+	 */
+	public function getFullUrl() {
+		return $this->appUrl . $this->destinationPath;
 	}
 
 	/**

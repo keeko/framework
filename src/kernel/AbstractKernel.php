@@ -34,7 +34,7 @@ abstract class AbstractKernel {
 	/**
 	 * Runs a kernel target
 	 *
-	 * @param RunnableInterface $target
+	 * @param KernelTargetInterface $target
 	 * @param Request $request
 	 * @return Response
 	 */

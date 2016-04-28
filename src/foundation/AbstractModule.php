@@ -7,12 +7,14 @@ use keeko\core\model\Module;
 use keeko\core\model\User;
 use keeko\framework\exceptions\ModuleException;
 use keeko\framework\exceptions\PermissionDeniedException;
-use keeko\framework\service\ServiceContainer;
-use phootwork\lang\Text;
 use keeko\framework\schema\ActionSchema;
 use keeko\framework\schema\PackageSchema;
+use keeko\framework\service\ServiceContainer;
+use keeko\framework\utils\LocaleLoaderTrait;
 
 abstract class AbstractModule {
+	
+	use LocaleLoaderTrait;
 	
 	/** @var Module */
 	protected $model;
@@ -190,23 +192,25 @@ abstract class AbstractModule {
 		
 		// l10n
 		// ------------
-		$app = $this->getServiceContainer()->getKernel()->getApplication();
-		$locale = $app->getLocalization()->getLocale();
 		
 		// load module l10n
-		$this->loadLocaleFile('module', $locale, $class);
+		$file = sprintf('/%s/locales/{locale}/module.json', $this->package->getFullName());
+		$this->loadLocaleFile($file, $class->getCanonicalName());
 		
 		// load additional l10n files
 		foreach ($action->getL10n() as $file) {
-			$this->loadLocaleFile($file, $locale, $class);
+			$file = sprintf('/%s/locales/{locale}/%s', $this->package->getFullName(), $file);
+			$this->loadLocaleFile($file, $class->getCanonicalName());
 		}
 
 		// load action l10n
-		$this->loadLocaleFile(sprintf('actions/%s', $actionName), $locale, $class);
+		$file = sprintf('/%s/locales/{locale}/actions/%s', $this->package->getFullName(), $actionName);
+		$this->loadLocaleFile($file, $class->getCanonicalName());
 		
 		
 		// assets
 		// ------------
+		$app = $this->getServiceContainer()->getKernel()->getApplication();
 		$page = $app->getPage();
 		
 		// scripts
@@ -219,40 +223,7 @@ abstract class AbstractModule {
 			$page->addStyle($style);
 		}
 
-
 		return $class;
-	}
-	
-	/**
-	 * @param string $file
-	 * @param string $locale
-	 * @param AbstractAction $class
-	 */
-	private function loadLocaleFile($file, $locale, AbstractAction $class) {
-		$lang = \Locale::getPrimaryLanguage($locale);
-		$translator = $this->getServiceContainer()->getTranslator();
-		$repo = $this->getServiceContainer()->getResourceRepository();
-		
-		// load locale
-		$l10n = $file;
-		if (!Text::create($l10n)->startsWith('/')) {
-			$l10n = sprintf('%s/locales/%s/%s', $this->package->getFullName(), $locale, $file);
-		}
-		if ($repo->contains($l10n)) {
-			$translator->addResource('json', $l10n, $locale, $class->getCanonicalName());
-		}
-
-		// load lang
-		if ($lang != $locale) {
-			$l10n = $file;
-			if (!Text::create($l10n)->startsWith('/')) {
-				$l10n = sprintf('%s/locales/%s/%s', $this->package->getFullName(), $lang, $file);
-			}
-			
-			if ($repo->contains($l10n)) {
-				$translator->addResource('json', $l10n, $lang, $class->getCanonicalName());
-			}
-		}
 	}
 	
 	/**
