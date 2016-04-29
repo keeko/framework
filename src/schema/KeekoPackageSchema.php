@@ -2,6 +2,9 @@
 namespace keeko\framework\schema;
 
 use phootwork\collection\Map;
+use phootwork\collection\Collection;
+use phootwork\collection\ArrayList;
+use phootwork\collection\Set;
 
 abstract class KeekoPackageSchema extends SubSchema {
 
@@ -11,7 +14,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	/** @var string */
 	protected $class;
 	
-	/** @var Map<string, Map> */
+	/** @var Map */
 	protected $extensions;
 	
 	/** @var Map<string, string> */
@@ -25,8 +28,25 @@ abstract class KeekoPackageSchema extends SubSchema {
 	
 		$this->title = $data->get('title', '');
 		$this->class = $data->get('class', '');
-		$this->extensions = $data->get('extensions', new Map());
 		$this->extensionPoints = $data->get('extension-points', new Map());
+		
+		$this->extensions = new Map();
+		$extensions = $data->get('extensions', []);
+		if ($extensions instanceof Collection) {
+			$extensions = $extensions->toArray();
+		}
+		foreach ($extensions as $key => $val) {
+			if (!$this->extensions->has($key)) {
+				$this->extensions->set($key, new ArrayList());
+			}
+			if (is_array($val)) {
+				foreach ($val as $v) {
+					$this->extensions->get($key)->add($v);
+				}
+			} else {
+				$this->extensions->get($key)->add($val);
+			}
+		}
 		
 		return $data;
 	}
@@ -42,8 +62,16 @@ abstract class KeekoPackageSchema extends SubSchema {
 			$arr['extension-points'] = $extensionPoints;
 		}
 	
-		$extensions = $this->extensions->toArray();
-		if (count($extensions) > 0) {
+		if ($this->extensions->size() > 0) {
+			$extensions = [];
+			foreach ($this->extensions->keys() as $key) {
+				$data = $this->extensions->get($key);
+				if ($data->size() == 1) {
+					$extensions[$key] = $data->get(0);						
+				} else {
+					$extensions[$key] = $data->toArray();
+				}
+			}
 			$arr['extensions'] = $extensions;
 		}
 
@@ -74,18 +102,27 @@ abstract class KeekoPackageSchema extends SubSchema {
 	 * @param string $key
 	 * @return boolean
 	 */
-	public function hasExtension($key) {
+	public function hasExtensions($key) {
 		return $this->extensions->has($key);
 	}
 	
 	/**
-	 * Returns the extension with the key
+	 * Returns the extensions for the given key
 	 *
 	 * @param string $key
-	 * @return mixed
+	 * @return ArrayList
 	 */
-	public function getExtension($key) {
+	public function getExtensions($key) {
 		return $this->extensions->get($key);
+	}
+	
+	/**
+	 * Returns all extension keys
+	 * 
+	 * @return Set
+	 */
+	public function getExtensionKeys() {
+		return $this->extensions->keys();
 	}
 	
 	/**
@@ -93,7 +130,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	 *
 	 * @return Map
 	 */
-	public function getExtensions() {
+	public function getAllExtensions() {
 		return $this->extensions;
 	}
 	

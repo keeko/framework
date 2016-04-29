@@ -19,15 +19,17 @@ trait TwigRenderTrait {
 		return [
 			'global' => [
 				'plattform_name' => $prefs->getPlattformName(),
-				'locations' => [
-					'uri' => $request->getUri(),
-					'root_url' => $app->getRootUrl(),
-					'app_url' => $app->getAppUrl(),
-					'app_path' => $app->getAppPath(),
-					'destination' => $app->getDestinationPath()
-				]
 			],
-			'user' => $user
+			'locations' => [
+				'uri' => $request->getUri(),
+				'root_url' => $app->getRootUrl(),
+				'account_url' => $prefs->getAccountUrl(),
+				'app_url' => $app->getAppUrl(),
+				'app_path' => $app->getAppPath(),
+				'destination' => $app->getDestinationPath()
+			],
+			'user' => $user,
+			'page' => $app->getPage()
 		];
 	}
 

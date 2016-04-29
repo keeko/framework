@@ -59,14 +59,17 @@ abstract class AbstractPackageInstaller {
 	
 	protected function updateExtensions(Package &$model, KeekoPackageSchema $pkg) {
 		// remove all existing extensions from this package first
-		ExtensionQuery::create()->filterByPackage($model)->deleteAll();
+		ExtensionQuery::create()->filterByPackage($model)->delete();
 		
 		// add them one by one
-		foreach ($pkg->getExtensions() as $key => $data) {
-			$ext = new Extension();
-			$ext->setKey($key);
-			$ext->setData(Json::encode($data));
-			$ext->save();
+		foreach ($pkg->getAllExtensions()->keys() as $key) {
+			foreach ($pkg->getExtensions($key) as $data) {
+				$ext = new Extension();
+				$ext->setKey($key);
+				$ext->setData(Json::encode($data, Json::UNESCAPED_SLASHES));
+				$ext->setPackage($model);
+				$ext->save();
+			}
 		}
 	}
 }

@@ -11,7 +11,7 @@ abstract class AbstractResponder {
 
 	protected $module;
 
-	public function __construct(AbstractModule $module, $format) {
+	public function __construct(AbstractModule $module) {
 		$this->module = $module;
 	}
 

@@ -189,7 +189,8 @@ class ModuleInstaller extends AbstractPackageInstaller {
 			->delete()
 		;
 	
-		$extensions = $this->service->getExtensionRegistry()->getExtensionsByPackage('keeko.api', $model->getName());
+// 		$extensions = $this->service->getExtensionRegistry()->getExtensionsByPackage('keeko.api', $model->getName());
+		
 		$json = Json::decode($repo->get($filename)->getBody());
 		$swagger = new Swagger($json);
 		foreach ($swagger->getPaths() as $path) {
@@ -213,9 +214,11 @@ class ModuleInstaller extends AbstractPackageInstaller {
 						}
 					}
 					
-					$prefix = isset($extensions[$actionName])
-						? $extensions[$actionName]
-						: $module->getSlug();
+// 					$prefix = isset($extensions[$actionName])
+// 						? $extensions[$actionName]
+// 						: $module->getSlug();
+
+					$prefix = $module->getSlug();
 					
 					$fullPath = str_replace('//', '/', $prefix . '/' . $path->getPath());
 					$api = new Api();
