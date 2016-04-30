@@ -153,7 +153,7 @@ class InstallerApplication extends AbstractApplication {
 		// root
 		$root = new User();
 		$root->setDisplayName('root');
-		$root->setLoginName('root');
+		$root->setUserName('root');
 		$root->setPassword(password_hash('root', PASSWORD_BCRYPT));
 		$root->save();
 
@@ -192,44 +192,34 @@ class InstallerApplication extends AbstractApplication {
 		// 2) preferences
 		$core = $this->service->getPackageManager()->getComposerPackage('keeko/core');
 		
-		$pref = new Preference();
-		$pref->setKey(SystemPreferences::VERSION);
-		$pref->setValue($core->getPrettyVersion());
-		$pref->save();
+		$this->setPreference(SystemPreferences::PREF_VERSION, $core->getPrettyVersion());
+		$this->setPreference(SystemPreferences::PREF_PLATTFORM_NAME, 'Keeko');
+		$this->setPreference(SystemPreferences::PREF_API_URL, $apiUrl);
+		$this->setPreference(SystemPreferences::PREF_API_VERSION, '1');
+		$this->setPreference(SystemPreferences::PREF_ACCOUNT_URL, $accountUrl);
 		
-		$pref = new Preference();
-		$pref->setKey(SystemPreferences::PLATTFORM_NAME);
-		$pref->setValue('Keeko');
-		$pref->save();
-		
-		$pref = new Preference();
-		$pref->setKey(SystemPreferences::API_URL);
-		$pref->setValue($apiUrl);
-		$pref->save();
-		
-		$pref = new Preference();
-		$pref->setKey(SystemPreferences::API_VERSION);
-		$pref->setValue('1');
-		$pref->save();
-		
-		$pref = new Preference();
-		$pref->setKey(SystemPreferences::ACCOUNT_URL);
-		$pref->setValue($accountUrl);
-		$pref->save();
-
+		// user prefs
+		$this->setPreference(SystemPreferences::PREF_USER_NAMES, SystemPreferences::VALUE_REQUIRED);
+		$this->setPreference(SystemPreferences::PREF_USER_LOGIN, SystemPreferences::LOGIN_USERNAME);
+		$this->setPreference(SystemPreferences::PREF_USER_BIRTH, SystemPreferences::VALUE_OPTIONAL);
+		$this->setPreference(SystemPreferences::PREF_USER_SEX, SystemPreferences::VALUE_OPTIONAL);
 
 		// 3) modules
 		$this->installModule('keeko/core');
 		$this->activateModule('keeko/core');
 		
-		$this->installModule('keeko/user');
-		$this->activateModule('keeko/user');
-		
-// 		$this->installModule('keeko/group');
-// 		$this->activateModule('keeko/group');
-		
 		$this->installModule('keeko/auth');
 		$this->activateModule('keeko/auth');
+		
+		$this->installModule('keeko/account');
+		$this->activateModule('keeko/account');
+	}
+	
+	private function setPreference($key, $value) {
+		$pref = new Preference();
+		$pref->setKey($key);
+		$pref->setValue($value);
+		$pref->save();
 	}
 
 	public function installApp($packageName) {

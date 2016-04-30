@@ -2,6 +2,7 @@
 namespace keeko\framework\service;
 
 use \Twig_Environment;
+use \Twig_Extension_Debug;
 use \Twig_SimpleFunction;
 use keeko\framework\foundation\ModuleManager;
 use keeko\framework\foundation\PackageManager;
@@ -120,7 +121,7 @@ class ServiceContainer {
 	 */
 	public function getAuthManager() {
 		if ($this->authManager === null) {
-			$this->authManager = new AuthManager();
+			$this->authManager = new AuthManager($this);
 		}
 	
 		return $this->authManager;
@@ -230,9 +231,14 @@ class ServiceContainer {
 	 */
 	public function getTwig() {
 		if ($this->twig === null) {
+			$options = [];
+			if (KEEKO_ENVIRONMENT == KEEKO_DEVELOPMENT) {
+				$options['debug'] = true;
+			}
+
 			$repo = $this->getResourceRepository();
 			$loader = new PuliTemplateLoader($repo);
-			$this->twig = new Twig_Environment($loader);
+			$this->twig = new Twig_Environment($loader, $options);
 				
 			// puli extension
 			$generator = $this->getUrlGenerator();
@@ -250,6 +256,13 @@ class ServiceContainer {
 			$access = function ($module, $action) use ($firewall) {
 				return $firewall->hasPermission($module, $action);
 			};
+			
+			// debug
+			if (KEEKO_ENVIRONMENT == KEEKO_DEVELOPMENT) {
+				$this->twig->addExtension(new Twig_Extension_Debug());
+			}
+			
+			
 			$this->twig->addFunction(new Twig_SimpleFunction('hasPermission', $access));
 		}
 		

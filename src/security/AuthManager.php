@@ -1,17 +1,19 @@
 <?php
 namespace keeko\framework\security;
 
+use DeviceDetector\DeviceDetector;
+use Geocoder\Provider\FreeGeoIp;
+use Geocoder\Provider\GeoPlugin;
+use Geocoder\ProviderAggregator;
+use Ivory\HttpAdapter\CurlHttpAdapter;
 use keeko\core\model\Session;
 use keeko\core\model\SessionQuery;
 use keeko\core\model\User;
 use keeko\core\model\UserQuery;
-use Symfony\Component\HttpFoundation\Request;
-use DeviceDetector\DeviceDetector;
-use Ivory\HttpAdapter\CurlHttpAdapter;
-use Geocoder\Provider\FreeGeoIp;
-use Geocoder\Provider\GeoPlugin;
-use Geocoder\ProviderAggregator;
+use keeko\framework\preferences\SystemPreferences;
+use keeko\framework\service\ServiceContainer;
 use phootwork\lang\ArrayObject;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuthManager {
 	
@@ -22,12 +24,16 @@ class AuthManager {
 	
 	/** @var Session */
 	private $session;
-	
+
 	private $recognized = false;
 	
 	private $authenticated = false;
 	
-	public function __construct() {
+	/** @var SerivceContainer */
+	private $service;
+	
+	public function __construct(ServiceContainer $service) {
+		$this->service = $service;
 		$this->user = $this->getGuest();
 		
 		$request = Request::createFromGlobals();
@@ -35,7 +41,16 @@ class AuthManager {
 
 		foreach ($strategies as $strategy) {
 			$method = 'auth' . ucfirst($strategy);
-			if ($this->$method($request)) {
+			$session = $this->$method($request);
+			if ($session !== null) {
+				$this->session = $session;
+				$this->user = $session->getUser();
+				$this->recognized = true;
+				
+				// update session
+				$session->setIp(null);
+				$session->setIp($request->getClientIp());
+				$session->save();			
 				break;
 			}
 		}
@@ -45,14 +60,26 @@ class AuthManager {
 		return UserQuery::create()->findOneById(-1);
 	}
 	
+	/**
+	 * Authenticates a user by a token in a cookie
+	 * 
+	 * @param Request $request
+	 * @return Session|null
+	 */
 	private function authCookie(Request $request) {
 		if ($request->cookies->has('Bearer')) {
 			$bearer = $request->cookies->get('Bearer');
 			return $this->authToken($bearer);
 		}
-		return false;
+		return null;
 	}
 
+	/**
+	 * Authenticates a user by an authorization header
+	 * 
+	 * @param Request $request
+	 * @return Session|null
+	 */
 	private function authHeader(Request $request) {
 		if ($request->headers->has('authorization')) {
 			$auth = $request->headers->get('authorization');
@@ -61,25 +88,24 @@ class AuthManager {
 				return $this->authToken($bearer);
 			}
 		}
-		return false;
-	}
-	
-	private function authToken($token) {
-		$session = SessionQuery::create()->findOneByToken($token);
-
-		if ($session !== null) {
-			$this->session = $session;
-			$this->user = $session->getUser();
-			$this->recognized = true;
-			$this->authenticated = true;
-			return true;
-		}
-		
-		return false;
+		return null;
 	}
 	
 	/**
+	 * Authenticates a user with a token
+	 * 
+	 * @param string $token
+	 * @return Session|null
+	 */
+	private function authToken($token) {
+		return SessionQuery::create()->findOneByToken($token);
+	}
+	
+	/**
+	 * Authenticates a user by basic authentication
+	 * 
 	 * @param Request $request
+	 * @return Session|null
 	 */
 	private function authBasic(Request $request) {
 		$user = $this->findUser($request->getUser());
@@ -88,15 +114,11 @@ class AuthManager {
 			if ($session === null) {
 				$session = $this->createSession($user);
 			}
-
-			$this->session = $session;
-			$this->user = $user;
-			$this->recognized = true;
 			$this->authenticated = true;
 			
-			return true;
+			return $session;
 		}
-		return false;
+		return null;
 	}
 	
 	/**
@@ -171,8 +193,12 @@ class AuthManager {
 			->findOne();
 	}
 	
-	private function verifyUser(User $user, $password) {
+	public function verifyUser(User $user, $password) {
 		return password_verify($password, $user->getPassword());
+	}
+	
+	public function encryptPassword($password) {
+		return password_hash($password, PASSWORD_BCRYPT);
 	}
 	
 	/**
@@ -181,7 +207,31 @@ class AuthManager {
 	 * @return User|null
 	 */
 	private function findUser($login) {
-		return UserQuery::create()->filterByLoginName($login)->findOne();
+		$query = UserQuery::create();
+		$prefs = $this->service->getPreferenceLoader()->getSystemPreferences();
+		$mode = $prefs->getUserLogin();
+		
+		// login with username
+		if ($mode == SystemPreferences::LOGIN_USERNAME) {
+			$query = $query->filterByUserName($login);
+		}
+		
+		// login with email
+		else if ($mode == SystemPreferences::LOGIN_EMAIL) {
+			$query = $query->filterByEmail($login);
+		} 
+		
+		// login with username or email
+		else if ($mode == SystemPreferences::LOGIN_USERNAME_EMAIL) {
+			$query = $query->filterByEmail($login)->_or()->filterByUserName($login);
+		}
+		
+		// no mode found, return null
+		else {
+			return null;
+		}
+
+		return $query->findOne();
 	}
 
 	public function logout(User $user = null) {

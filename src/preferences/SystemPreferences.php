@@ -3,28 +3,37 @@ namespace keeko\framework\preferences;
 
 class SystemPreferences extends Preferences {
 
-	const VERSION = 'version';
-	const PLATTFORM_NAME = 'plattform_name';
-	const ROOT_URL = 'root_url';
-	const API_URL = 'api_url';
-	const API_VERSION = 'api_version';
-	const ACCOUNT_URL = 'root_url';
+	const PREF_VERSION = 'version';
+	const PREF_PLATTFORM_NAME = 'plattform_name';
+	const PREF_ROOT_URL = 'root_url';
+	const PREF_API_URL = 'api_url';
+	const PREF_API_VERSION = 'api_version';
+	const PREF_ACCOUNT_URL = 'root_url';
 	
-	const USER_LOGIN = 'login';
-	const USER_NAMES_REQUIRED = 'user_names_required';
-	const USER_BIRTH_REQUIRED = 'user_birth_required';
-	const USER_DISPLAY_NAME = 'user_display_name';
+	const PREF_USER_LOGIN = 'login';
+	const PREF_USER_NAMES = 'user_names';
+	const PREF_USER_NICKNAME = 'user_nickname';
+	const PREF_USER_BIRTH = 'user_birth';
+	const PREF_USER_SEX = 'user_sex';
+	const PREF_USER_DISPLAY_NAME = 'user_display_name';
 	
-	const USER_DISPLAY_OPT_USERNAME = 'user_display_opt_username';
-	const USER_DISPLAY_OPT_NICKNAME = 'user_display_opt_nickname';
-	const USER_DISPLAY_OPT_GIVENFAMILYNAME = 'user_display_opt_givenfamilyname';
-	const USER_DISPLAY_OPT_FAMILYGIVENNAME = 'user_display_opt_familygivenname';
+	const PREF_USER_DISPLAY_OPT_USERNAME = 'user_display_opt_username';
+	const PREF_USER_DISPLAY_OPT_NICKNAME = 'user_display_opt_nickname';
+	const PREF_USER_DISPLAY_OPT_GIVENFAMILYNAME = 'user_display_opt_givenfamilyname';
+	const PREF_USER_DISPLAY_OPT_FAMILYGIVENNAME = 'user_display_opt_familygivenname';
 	
-	// msic stuff
-	const PAGINATION_SIZE = 'pagination_size';
-	const PAGINATION_SIZE_DEFAULT = 50;
+	// misc stuff
+	const PREF_PAGINATION_SIZE = 'pagination_size';
+	
 	
 	// Values
+	
+	/**
+	 * Default pagination size
+	 * 
+	 * @var int
+	 */
+	const PAGINATION_SIZE_DEFAULT = 50;
 
 	/**
 	 * Username login value
@@ -82,6 +91,24 @@ class SystemPreferences extends Preferences {
 	 */
 	const DISPLAY_USERSELECT = 'user_select';
 	
+	/**
+	 * Value for required
+	 * 
+	 * @var string
+	 */
+	const VALUE_REQUIRED = 'required';
+	
+	/**
+	 * Values for optional
+	 * @var string
+	 */
+	const VALUE_OPTIONAL = 'optional';
+	
+	/**
+	 * Values for not used at all
+	 * @var string
+	 */
+	const VALUE_NONE = 'none';
 	
 	/**
 	 * Returns the plattforms name
@@ -89,7 +116,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getPlattformName() {
-		return $this->get(self::PLATTFORM_NAME);
+		return $this->get(self::PREF_PLATTFORM_NAME);
 	}
 	
 	/**
@@ -98,7 +125,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getApiUrl() {
-		return $this->get(self::API_URL);
+		return $this->get(self::PREF_API_URL);
 	}
 	
 	/**
@@ -107,7 +134,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getApiVersion() {
-		return $this->get(self::API_VERSION);
+		return $this->get(self::PREF_API_VERSION);
 	}
 	
 	/**
@@ -116,7 +143,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getVersion() {
-		return $this->get(self::VERSION);
+		return $this->get(self::PREF_VERSION);
 	}
 	
 	/**
@@ -125,7 +152,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getRootUrl() {
-		return $this->get(self::ROOT_URL);
+		return $this->get(self::PREF_ROOT_URL);
 	}
 	
 	/**
@@ -134,20 +161,68 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getAccountUrl() {
-		return $this->get(self::ACCOUNT_URL);
+		return $this->get(self::PREF_ACCOUNT_URL);
 	}
 	
+	/**
+	 * Returns whether users birth is required, optional or not used at all
+	 * 
+	 * @see SystemPreferences::VALUE_NONE
+	 * @see SystemPreferences::VALUE_OPTIONAL
+	 * @see SystemPreferences::VALUE_REQUIRED
+	 * 
+	 * @return string
+	 */
+	public function getUserBirth() {
+		return $this->get(self::PREF_USER_BIRTH);
+	}
+	
+	/**
+	 * Returns whether users sex is required, optional or not used at all
+	 * 
+	 * @see SystemPreferences::VALUE_NONE
+	 * @see SystemPreferences::VALUE_OPTIONAL
+	 * @see SystemPreferences::VALUE_REQUIRED
+	 * 
+	 * @return string
+	 */
+	public function getUserSex() {
+		return $this->get(self::PREF_USER_SEX);
+	}
+	
+	/**
+	 * Returns whether users names (given and family) are required, optional or not used at all
+	 * 
+	 * @see SystemPreferences::VALUE_NONE
+	 * @see SystemPreferences::VALUE_OPTIONAL
+	 * @see SystemPreferences::VALUE_REQUIRED
+	 * 
+	 * @return string
+	 */
+	public function getUserNames() {
+		return $this->get(self::PREF_USER_NAMES);
+	}
 	
 	/**
 	 * Returns whether username or email is used as login
 	 * 
 	 * @see SystemPreferences::LOGIN_USERNAME
 	 * @see SystemPreferences::LOGIN_EMAIL
+	 * @see SystemPreferences::LOGIN_USERNAME_EMAIL
 	 * 
 	 * @return string
 	 */
 	public function getUserLogin() {
-		return $this->get(self::USER_LOGIN, self::LOGIN_USERNAME);
+		return $this->get(self::PREF_USER_LOGIN, self::LOGIN_USERNAME);
+	}
+	
+	/**
+	 * Returns whether user can select a nickname or not
+	 * 
+	 * @return boolean
+	 */
+	public function getUserNickname() {
+		return $this->getBool(self::PREF_USER_NICKNAME);
 	}
 	
 	/**
@@ -162,7 +237,7 @@ class SystemPreferences extends Preferences {
 	 * @return string
 	 */
 	public function getUserDisplayName() {
-		return $this->get(self::USER_DISPLAY_NAME, self::DISPLAY_USERNAME);
+		return $this->get(self::PREF_USER_DISPLAY_NAME, self::DISPLAY_USERNAME);
 	}
 	
 	/**
@@ -171,7 +246,7 @@ class SystemPreferences extends Preferences {
 	 * @return boolean
 	 */
 	public function getUserDisplayOptionUsername() {
-		return $this->getBool(self::USER_DISPLAY_OPT_FAMILYGIVENNAME);
+		return $this->getBool(self::PREF_USER_DISPLAY_OPT_FAMILYGIVENNAME);
 	}
 	
 	/**
@@ -180,7 +255,7 @@ class SystemPreferences extends Preferences {
 	 * @return boolean
 	 */
 	public function getUserDisplayOptionNickname() {
-		return $this->getBool(self::USER_DISPLAY_OPT_NICKNAME);
+		return $this->getBool(self::PREF_USER_DISPLAY_OPT_NICKNAME);
 	}
 	
 	/**
@@ -189,7 +264,7 @@ class SystemPreferences extends Preferences {
 	 * @return boolean
 	 */
 	public function getUserDisplayOptionGivenFamilyName() {
-		return $this->getBool(self::USER_DISPLAY_OPT_GIVENFAMILYNAME);
+		return $this->getBool(self::PREF_USER_DISPLAY_OPT_GIVENFAMILYNAME);
 	}
 	
 	/**
@@ -198,7 +273,7 @@ class SystemPreferences extends Preferences {
 	 * @return boolean
 	 */
 	public function getUserDisplayOptionFamilyGivenName() {
-		return $this->getBool(self::USER_DISPLAY_OPT_FAMILYGIVENNAME);
+		return $this->getBool(self::PREF_USER_DISPLAY_OPT_FAMILYGIVENNAME);
 	}
 	
 	/**
@@ -207,6 +282,6 @@ class SystemPreferences extends Preferences {
 	 * @return int
 	 */
 	public function getPaginationSize() {
-		return $this->getInt(self::PAGINATION_SIZE, self::PAGINATION_SIZE_DEFAULT);
+		return $this->getInt(self::PREF_PAGINATION_SIZE, self::PAGINATION_SIZE_DEFAULT);
 	}
 }
