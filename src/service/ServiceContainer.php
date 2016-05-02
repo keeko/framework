@@ -1,6 +1,10 @@
 <?php
 namespace keeko\framework\service;
 
+use \Swift_Mailer;
+use \Swift_MailTransport;
+use \Swift_SendmailTransport;
+use \Swift_SmtpTransport;
 use \Twig_Environment;
 use \Twig_Extension_Debug;
 use \Twig_SimpleFunction;
@@ -8,6 +12,7 @@ use keeko\framework\foundation\ModuleManager;
 use keeko\framework\foundation\PackageManager;
 use keeko\framework\kernel\AbstractKernel;
 use keeko\framework\preferences\PreferenceLoader;
+use keeko\framework\preferences\SystemPreferences;
 use keeko\framework\security\AuthManager;
 use keeko\framework\security\Firewall;
 use keeko\framework\utils\KeekoJsonTranslationLoader;
@@ -61,6 +66,9 @@ class ServiceContainer {
 	
 	/** @var ExtensionRegistry */
 	private $extensionRegistry;
+	
+	/** @var SwiftMailer */
+	private $mailer;
 	
 	public function __construct(AbstractKernel $kernel) {
 		$this->kernel = $kernel;
@@ -280,5 +288,40 @@ class ServiceContainer {
 		}
 		
 		return $this->extensionRegistry;
+	}
+	
+	/**
+	 * Returns the mailer to send emails
+	 * 
+	 * @return Swift_Mailer
+	 */
+	public function getMailer() {
+		if ($this->mailer == null) {
+			$prefs = $this->getPreferenceLoader()->getSystemPreferences();
+			switch ($prefs->getMailTransport()) {
+				case SystemPreferences::MAIL_TRANSPORT_SMTP:
+					$transport = new Swift_SmtpTransport($prefs->getSmtpServer(), $prefs->getSmtpPort());
+					$transport->setUsername($prefs->getSmtpUsername());
+					$transport->setPassword($prefs->getSmtpPassword());
+					$encryption = $prefs->getSmtpEncryption();
+					if ($encryption != SystemPreferences::SMTP_ENCRYPTION_NONE) {
+						$transport->setEncryption($encryption);
+					}
+					break;
+					
+				case SystemPreferences::MAIL_TRANSPORT_SENDMAIL:
+					$transport = new Swift_SendmailTransport($prefs->getSendmail());
+					break;
+					
+				case SystemPreferences::MAIL_TRANSPORT_MAIL:
+				default:
+					$transport = new Swift_MailTransport();
+					break;
+			}			
+			
+			$this->mailer = new Swift_Mailer($transport);
+		}
+		
+		return $this->mailer;
 	}
 }

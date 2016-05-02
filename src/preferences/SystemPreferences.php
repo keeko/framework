@@ -22,6 +22,16 @@ class SystemPreferences extends Preferences {
 	const PREF_USER_DISPLAY_OPT_GIVENFAMILYNAME = 'user_display_opt_givenfamilyname';
 	const PREF_USER_DISPLAY_OPT_FAMILYGIVENNAME = 'user_display_opt_familygivenname';
 	
+	// mailer
+	
+	const PREF_MAIL_TRANSPORT = 'mail_transport';
+	const PREF_MAIL_SMTP_USER = 'mail_smtp_user';
+	const PREF_MAIL_SMTP_PASSWORD = 'mail_smtp_password';
+	const PREF_MAIL_SMTP_SERVER = 'mail_smtp_server';
+	const PREF_MAIL_SMTP_PORT = 'mail_smtp_port';
+	const PREF_MAIL_SMTP_ENCRYPTION = 'mail_smtp_encryption';
+	const PREF_MAIL_SENDMAIL = 'mail_sendmail';
+	
 	// misc stuff
 	const PREF_PAGINATION_SIZE = 'pagination_size';
 	
@@ -110,6 +120,48 @@ class SystemPreferences extends Preferences {
 	 */
 	const VALUE_NONE = 'none';
 	
+	/**
+	 * Value for php mail transport
+	 *
+	 * @var string
+	 */
+	const MAIL_TRANSPORT_MAIL = 'mail';
+	
+	/**
+	 * Value for smpt mail transport
+	 *
+	 * @var string
+	 */
+	const MAIL_TRANSPORT_SMTP = 'smtp';
+	
+	/**
+	 * Value for sendmail mail transport
+	 * 
+	 * @var string
+	 */
+	const MAIL_TRANSPORT_SENDMAIL = 'sendmail';
+	
+	/**
+	 * Value for no smtp encryption
+	 * 
+	 * @var string
+	 */
+	const SMTP_ENCRYPTION_NONE = 'none';
+	
+	/**
+	 * Value for ssl smtp encryption
+	 *
+	 * @var string
+	 */
+	const SMTP_ENCRYPTION_SSL = 'ssl';
+	
+	/**
+	 * Value for tls smtp encryption
+	 *
+	 * @var string
+	 */
+	const SMTP_ENCRYPTION_TLS = 'tls';
+
 	/**
 	 * Returns the plattforms name
 	 *
@@ -283,5 +335,76 @@ class SystemPreferences extends Preferences {
 	 */
 	public function getPaginationSize() {
 		return $this->getInt(self::PREF_PAGINATION_SIZE, self::PAGINATION_SIZE_DEFAULT);
+	}
+	
+	/**
+	 * Returns the mail transport
+	 * 
+	 * @see SystemPreferences::MAIL_TRANSPORT_MAIL
+	 * @see SystemPreferences::MAIL_TRANSPORT_SMTP
+	 * @see SystemPreferences::MAIL_TRANSPORT_SENDMAIL
+	 * 
+	 * @return string
+	 */
+	public function getMailTransport() {
+		return $this->get(self::PREF_MAIL_TRANSPORT, self::MAIL_TRANSPORT_MAIL);
+	}
+	
+	/**
+	 * Returns the smtp username
+	 * 
+	 * @return string
+	 */
+	public function getSmtpUsername() {
+		return $this->get(self::PREF_MAIL_SMTP_USER);
+	}
+	
+	/**
+	 * Returns the smtp password
+	 * 
+	 * @return string
+	 */
+	public function getSmtpPassword() {
+		return $this->get(self::PREF_MAIL_SMTP_PASSWORD);
+	}
+	
+	/**
+	 * Returns the smtp server
+	 * 
+	 * @return string
+	 */
+	public function getSmtpServer() {
+		return $this->get(self::PREF_MAIL_SMTP_SERVER);
+	}
+	
+	/**
+	 * Returns the smtp port
+	 * 
+	 * @return int
+	 */
+	public function getSmtpPort() {
+		return $this->getInt(self::PREF_MAIL_SMTP_PORT, 25);
+	}
+	
+	/**
+	 * Returns the smtp encryption
+	 * 
+	 * @see SystemPreferences::SMTP_ENCRYPTION_NONE
+	 * @see SystemPreferences::SMTP_ENCRYPTION_SSL
+	 * @see SystemPreferences::SMTP_ENCRYPTION_TLS
+	 * 
+	 * @return string
+	 */
+	public function getSmtpEncryption() {
+		return $this->get(self::PREF_MAIL_SMTP_ENCRYPTION);
+	}
+	
+	/**
+	 * Returns the sendmail executable
+	 * 
+	 * @return string
+	 */
+	public function getSendmail() {
+		return $this->get(self::PREF_MAIL_SENDMAIL, '/usr/sbin/sendmail -bs');
 	}
 }
