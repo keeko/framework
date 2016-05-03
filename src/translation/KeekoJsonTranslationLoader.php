@@ -1,5 +1,5 @@
 <?php
-namespace keeko\framework\utils;
+namespace keeko\framework\translation;
 
 use keeko\framework\service\ServiceContainer;
 use phootwork\file\File;

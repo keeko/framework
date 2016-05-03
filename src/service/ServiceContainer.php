@@ -3,6 +3,7 @@ namespace keeko\framework\service;
 
 use \Swift_Mailer;
 use \Swift_MailTransport;
+use \Swift_Message;
 use \Swift_SendmailTransport;
 use \Swift_SmtpTransport;
 use \Twig_Environment;
@@ -15,7 +16,9 @@ use keeko\framework\preferences\PreferenceLoader;
 use keeko\framework\preferences\SystemPreferences;
 use keeko\framework\security\AuthManager;
 use keeko\framework\security\Firewall;
-use keeko\framework\utils\KeekoJsonTranslationLoader;
+use keeko\framework\translation\KeekoJsonTranslationLoader;
+use keeko\framework\translation\KeekoTranslator;
+use keeko\framework\translation\LocaleService;
 use Puli\Discovery\Api\Discovery;
 use Puli\Repository\Api\ResourceRepository;
 use Puli\TwigExtension\PuliExtension;
@@ -42,6 +45,9 @@ class ServiceContainer {
 	
 	/** @var KeekoTranslator */
 	private $translator;
+	
+	/** @var LocaleService */
+	private $localeService;
 	
 	/** @var EventDispatcher */
 	private $dispatcher;
@@ -179,6 +185,14 @@ class ServiceContainer {
 		return $this->translator;
 	}
 	
+	public function getLocaleService() {
+		if ($this->localeService === null) {
+			$this->localeService = new LocaleService($this);
+		}
+		
+		return $this->localeService;
+	}
+	
 	/**
 	 *
 	 * @return Puli\GeneratedPuliFactory
@@ -296,7 +310,7 @@ class ServiceContainer {
 	 * @return Swift_Mailer
 	 */
 	public function getMailer() {
-		if ($this->mailer == null) {
+		if ($this->mailer === null) {
 			$prefs = $this->getPreferenceLoader()->getSystemPreferences();
 			switch ($prefs->getMailTransport()) {
 				case SystemPreferences::MAIL_TRANSPORT_SMTP:
@@ -323,5 +337,22 @@ class ServiceContainer {
 		}
 		
 		return $this->mailer;
+	}
+	
+	/**
+	 * Creates a new message, which can be send with a mailer
+	 * 
+	 * @return Swift_Message
+	 */
+	public function createMessage() {
+		$prefs = $this->getPreferenceLoader()->getSystemPreferences();
+		
+		$message = new Swift_Message();
+		$sender = $prefs->getPlattformEmail();
+		if (!empty($sender)) {
+			$message->setFrom($prefs->getPlattformEmail(), $prefs->getPlattformName());
+		}
+		
+		return $message;
 	}
 }

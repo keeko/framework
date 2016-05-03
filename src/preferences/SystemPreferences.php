@@ -5,6 +5,7 @@ class SystemPreferences extends Preferences {
 
 	const PREF_VERSION = 'version';
 	const PREF_PLATTFORM_NAME = 'plattform_name';
+	const PREF_PLATTFORM_EMAIL = 'plattform_email';
 	const PREF_ROOT_URL = 'root_url';
 	const PREF_API_URL = 'api_url';
 	const PREF_API_VERSION = 'api_version';
@@ -169,6 +170,15 @@ class SystemPreferences extends Preferences {
 	 */
 	public function getPlattformName() {
 		return $this->get(self::PREF_PLATTFORM_NAME);
+	}
+	
+	/**
+	 * Returns the plattforms email
+	 * 
+	 * @return string
+	 */
+	public function getPlattformEmail() {
+		return $this->get(self::PREF_PLATTFORM_EMAIL);
 	}
 	
 	/**

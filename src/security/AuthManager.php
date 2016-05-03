@@ -206,7 +206,7 @@ class AuthManager {
 	 * @param string $login
 	 * @return User|null
 	 */
-	private function findUser($login) {
+	public function findUser($login) {
 		$query = UserQuery::create();
 		$prefs = $this->service->getPreferenceLoader()->getSystemPreferences();
 		$mode = $prefs->getUserLogin();

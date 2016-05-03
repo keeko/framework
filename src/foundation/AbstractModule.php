@@ -10,11 +10,8 @@ use keeko\framework\exceptions\PermissionDeniedException;
 use keeko\framework\schema\ActionSchema;
 use keeko\framework\schema\PackageSchema;
 use keeko\framework\service\ServiceContainer;
-use keeko\framework\utils\LocaleLoaderTrait;
 
 abstract class AbstractModule {
-	
-	use LocaleLoaderTrait;
 	
 	/** @var Module */
 	protected $model;
@@ -197,19 +194,21 @@ abstract class AbstractModule {
 		// l10n
 		// ------------
 		
+		$localeService = $this->getServiceContainer()->getLocaleService();
+		
 		// load module l10n
 		$file = sprintf('/%s/locales/{locale}/module.json', $this->package->getFullName());
-		$this->loadLocaleFile($file, $class->getCanonicalName());
+		$localeService->loadLocaleFile($file, $class->getCanonicalName());
 		
 		// load additional l10n files
 		foreach ($action->getL10n() as $file) {
 			$file = sprintf('/%s/locales/{locale}/%s', $this->package->getFullName(), $file);
-			$this->loadLocaleFile($file, $class->getCanonicalName());
+			$localeService->loadLocaleFile($file, $class->getCanonicalName());
 		}
 
 		// load action l10n
 		$file = sprintf('/%s/locales/{locale}/actions/%s', $this->package->getFullName(), $actionName);
-		$this->loadLocaleFile($file, $class->getCanonicalName());
+		$localeService->loadLocaleFile($file, $class->getCanonicalName());
 		
 		
 		// assets

@@ -12,11 +12,8 @@ use keeko\framework\exceptions\ModuleException;
 use keeko\framework\service\ServiceContainer;
 use phootwork\collection\Map;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use keeko\framework\utils\LocaleLoaderTrait;
 
 class ModuleManager implements EventSubscriberInterface {
-	
-	use LocaleLoaderTrait;
 	
 	/** @var Map */
 	private $loadedModules;
@@ -155,8 +152,9 @@ class ModuleManager implements EventSubscriberInterface {
 		$this->loadedModules->set($packageName, $module);
 		
 		// load locale
+		$localeService = $this->getServiceContainer()->getLocaleService();
 		$file = sprintf('/%s/locales/{locale}/module.json', $packageName);
-		$this->loadLocaleFile($file, $module->getCanonicalName());
+		$localeService->loadLocaleFile($file, $module->getCanonicalName());
 
 		return $module;
 	}
