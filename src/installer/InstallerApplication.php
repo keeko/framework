@@ -199,8 +199,9 @@ class InstallerApplication extends AbstractApplication {
 		$this->setPreference(SystemPreferences::PREF_ACCOUNT_URL, $accountUrl);
 		
 		// user prefs
-		$this->setPreference(SystemPreferences::PREF_USER_NAMES, SystemPreferences::VALUE_REQUIRED);
 		$this->setPreference(SystemPreferences::PREF_USER_LOGIN, SystemPreferences::LOGIN_USERNAME);
+		$this->setPreference(SystemPreferences::PREF_USER_EMAIL, true);
+		$this->setPreference(SystemPreferences::PREF_USER_NAMES, SystemPreferences::VALUE_OPTIONAL);
 		$this->setPreference(SystemPreferences::PREF_USER_BIRTH, SystemPreferences::VALUE_OPTIONAL);
 		$this->setPreference(SystemPreferences::PREF_USER_SEX, SystemPreferences::VALUE_OPTIONAL);
 

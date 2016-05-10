@@ -3,6 +3,8 @@ namespace keeko\framework\preferences;
 
 class SystemPreferences extends Preferences {
 
+	// plattform
+	
 	const PREF_VERSION = 'version';
 	const PREF_PLATTFORM_NAME = 'plattform_name';
 	const PREF_PLATTFORM_EMAIL = 'plattform_email';
@@ -10,6 +12,8 @@ class SystemPreferences extends Preferences {
 	const PREF_API_URL = 'api_url';
 	const PREF_API_VERSION = 'api_version';
 	const PREF_ACCOUNT_URL = 'root_url';
+	
+	// users prefs
 	
 	const PREF_USER_LOGIN = 'login';
 	const PREF_USER_NAMES = 'user_names';
@@ -22,6 +26,8 @@ class SystemPreferences extends Preferences {
 	const PREF_USER_DISPLAY_OPT_NICKNAME = 'user_display_opt_nickname';
 	const PREF_USER_DISPLAY_OPT_GIVENFAMILYNAME = 'user_display_opt_givenfamilyname';
 	const PREF_USER_DISPLAY_OPT_FAMILYGIVENNAME = 'user_display_opt_familygivenname';
+	
+	const PREF_USER_EMAIL = 'email_required';
 	
 	// mailer
 	
@@ -224,6 +230,15 @@ class SystemPreferences extends Preferences {
 	 */
 	public function getAccountUrl() {
 		return $this->get(self::PREF_ACCOUNT_URL);
+	}
+	
+	/**
+	 * Returns whether email is required for registration
+	 * 
+	 * @return boolean
+	 */
+	public function getUserEmail() {
+		return $this->getBool(self::PREF_USER_EMAIL);
 	}
 	
 	/**

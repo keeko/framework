@@ -2,11 +2,11 @@
 namespace keeko\framework\foundation;
 
 use keeko\core\model\Action;
-use keeko\framework\kernel\KernelTargetInterface;
+use keeko\framework\kernel\KernelHandleInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-abstract class AbstractAction implements KernelTargetInterface {
+abstract class AbstractAction implements KernelHandleInterface {
 	
 	/** @var Action */
 	protected $model;

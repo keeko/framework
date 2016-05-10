@@ -3,13 +3,13 @@ namespace keeko\framework\foundation;
 
 use keeko\core\model\Application;
 use keeko\core\model\Localization;
-use keeko\framework\kernel\KernelTargetInterface;
+use keeko\framework\kernel\KernelHandleInterface;
 use keeko\framework\kernel\Page;
 use keeko\framework\service\ServiceContainer;
 use keeko\framework\utils\TwigRenderTrait;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class AbstractApplication implements KernelTargetInterface {
+abstract class AbstractApplication implements KernelHandleInterface {
 	
 	use TwigRenderTrait;
 

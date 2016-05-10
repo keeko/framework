@@ -6,11 +6,11 @@ use keeko\core\model\Module;
 
 class ModuleEvent extends Event {
 	
-	const INSTALLED = 'core.module.installed';
-	const UNINSTALLED = 'core.module.uninstalled';
-	const UPDATED = 'core.module.updated';
-	const ACTIVATED = 'core.module.activated';
-	const DEACTIVATED = 'core.module.deactivated';
+	const INSTALLED = 'framework.module.installed';
+	const UNINSTALLED = 'framework.module.uninstalled';
+	const UPDATED = 'framework.module.updated';
+	const ACTIVATED = 'framework.module.activated';
+	const DEACTIVATED = 'framework.module.deactivated';
 
 	/** @var Module */
 	private $module;

@@ -1,11 +1,11 @@
 <?php
 namespace keeko\framework\translation;
 
+use keeko\framework\events\KernelHandleEvent;
+use keeko\framework\service\ServiceContainer;
 use phootwork\collection\Stack;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Translation\Translator;
-use keeko\framework\events\KernelTargetEvent;
-use keeko\framework\service\ServiceContainer;
 
 class KeekoTranslator extends Translator implements EventSubscriberInterface {
 
@@ -32,19 +32,19 @@ class KeekoTranslator extends Translator implements EventSubscriberInterface {
 	 */
 	public static function getSubscribedEvents() {
 		return [
-			KernelTargetEvent::BEFORE_RUN => 'beforeRun',
-			KernelTargetEvent::AFTER_RUN => 'afterRun'
+			KernelHandleEvent::PRE_RUN => 'preRun',
+			KernelHandleEvent::POST_RUN => 'postRun'
 		];
 	}
 	
-	public function beforeRun(KernelTargetEvent $e) {
+	public function preRun(KernelHandleEvent $e) {
 		$target = $e->getTarget();
 		
 		$this->domainStack->push($target->getCanonicalName());
 		$this->domain = $this->domainStack->peek();
 	}
 	
-	public function afterRun(KernelTargetEvent $e) {
+	public function postRun(KernelHandleEvent $e) {
 		$this->domainStack->pop();
 		$this->domain = $this->domainStack->peek();
 	}

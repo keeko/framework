@@ -1,7 +1,7 @@
 <?php
 namespace keeko\framework\kernel;
 
-use keeko\framework\events\KernelTargetEvent;
+use keeko\framework\events\KernelHandleEvent;
 use keeko\framework\foundation\AbstractApplication;
 use keeko\framework\service\ServiceContainer;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -38,12 +38,12 @@ abstract class AbstractKernel {
 	 * @param Request $request
 	 * @return Response
 	 */
-	public function handle(KernelTargetInterface $target, Request $request) {
-		$event = new KernelTargetEvent($target);
+	public function handle(KernelHandleInterface $target, Request $request) {
+		$event = new KernelHandleEvent($target);
 		
-		$this->dispatcher->dispatch(KernelTargetEvent::BEFORE_RUN, $event);
+		$this->dispatcher->dispatch(KernelHandleEvent::PRE_RUN, $event);
 		$response = $target->run($request);
-		$this->dispatcher->dispatch(KernelTargetEvent::AFTER_RUN, $event);
+		$this->dispatcher->dispatch(KernelHandleEvent::POST_RUN, $event);
 	
 		return $response;
 	}

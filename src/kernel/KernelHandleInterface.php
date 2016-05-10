@@ -5,7 +5,7 @@ use keeko\framework\foundation\PackageEntityInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-interface KernelTargetInterface extends PackageEntityInterface {
+interface KernelHandleInterface extends PackageEntityInterface {
 
 	/**
 	 * Runs the particular target
