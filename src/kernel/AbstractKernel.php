@@ -7,6 +7,10 @@ use keeko\framework\service\ServiceContainer;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use keeko\core\CoreModule;
+use phootwork\collection\Map;
+use keeko\framework\events\KeekoEventSubscriberInterface;
+use keeko\framework\events\KeekoEventListenerInterface;
 
 abstract class AbstractKernel {
 	
@@ -22,6 +26,50 @@ abstract class AbstractKernel {
 	public function __construct() {
 		$this->service = new ServiceContainer($this);
 		$this->dispatcher = $this->service->getDispatcher();
+
+		$this->registerListeners();
+	}
+	
+	private function registerListeners() {
+		$reg = $this->service->getExtensionRegistry();
+		$listeners = $reg->getExtensions(CoreModule::EXT_LISTENER);
+
+		$map = new Map();
+		$getClass = function ($className) use ($map) {
+			if (class_exists($className)) {
+				if ($map->has($className)) {
+					$class = $map->get($className);
+				} else {
+					$class = new $className();
+					$map->set($className, $class);
+				}
+				if ($class instanceof KeekoEventListenerInterface) {
+					$class->setServiceContainer($this->service);
+				}
+				return $class;
+			}
+			return null;
+		};
+
+		foreach ($listeners as $listener) {
+			// subscriber first
+			if (isset($listener['subscriber'])) {
+				$className = $listener['subscriber'];
+				$subscriber = $getClass($className);
+				if ($subscriber !== null && $subscriber instanceof KeekoEventSubscriberInterface) {
+					$this->dispatcher->addSubscriber($subscriber);
+				}
+			}
+
+			// class
+			if (isset($listener['class']) && isset($listener['method']) && isset($listener['event'])) {
+				$className = $listener['class'];
+				$class = $getClass($className);
+				if ($class !== null && $class instanceof KeekoEventListenerInterface) {
+					$this->dispatcher->addListener($listener['event'], [$class, $listener['method']]);
+				}
+			}
+		}
 	}
 	
 	/**

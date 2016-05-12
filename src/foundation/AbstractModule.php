@@ -38,6 +38,14 @@ abstract class AbstractModule {
 		$this->package = $packageManager->getPackage($module->getName());
 		
 		$this->loadActions();
+		$this->initialize();
+	}
+	
+	/**
+	 * Override this method to init your module
+	 */
+	protected function initialize() {
+		
 	}
 	
 	/**

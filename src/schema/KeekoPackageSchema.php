@@ -1,10 +1,10 @@
 <?php
 namespace keeko\framework\schema;
 
+use phootwork\collection\CollectionUtils;
 use phootwork\collection\Map;
-use phootwork\collection\Collection;
-use phootwork\collection\ArrayList;
 use phootwork\collection\Set;
+use phootwork\collection\ArrayList;
 
 abstract class KeekoPackageSchema extends SubSchema {
 
@@ -17,7 +17,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	/** @var Map */
 	protected $extensions;
 	
-	/** @var Map<string, string> */
+	/** @var Map */
 	protected $extensionPoints;
 	
 	/**
@@ -31,23 +31,13 @@ abstract class KeekoPackageSchema extends SubSchema {
 		$this->extensionPoints = $data->get('extension-points', new Map());
 		
 		$this->extensions = new Map();
-		$extensions = $data->get('extensions', []);
-		if ($extensions instanceof Collection) {
-			$extensions = $extensions->toArray();
-		}
+		$extensions = CollectionUtils::toMap($data->get('extensions', []));
 		foreach ($extensions as $key => $val) {
-			if (!$this->extensions->has($key)) {
-				$this->extensions->set($key, new ArrayList());
-			}
-			if (is_array($val)) {
-				foreach ($val as $v) {
-					$this->extensions->get($key)->add($v);
-				}
-			} else {
-				$this->extensions->get($key)->add($val);
-			}
+			$this->extensions->set($key, $val->map(function($v) {
+				return $v->toArray();
+			}));
 		}
-		
+
 		return $data;
 	}
 	
@@ -56,21 +46,15 @@ abstract class KeekoPackageSchema extends SubSchema {
 			'title' => $this->title,
 			'class' => $this->class
 		];
-	
-		$extensionPoints = $this->extensionPoints->toArray();
-		if (count($extensionPoints) > 0) {
-			$arr['extension-points'] = $extensionPoints;
+
+		if ($this->extensionPoints->size() > 0) {
+			$arr['extension-points'] = $this->extensionPoints->toArray();
 		}
-	
+
 		if ($this->extensions->size() > 0) {
 			$extensions = [];
 			foreach ($this->extensions->keys() as $key) {
-				$data = $this->extensions->get($key);
-				if ($data->size() == 1) {
-					$extensions[$key] = $data->get(0);						
-				} else {
-					$extensions[$key] = $data->toArray();
-				}
+				$extensions[$key] = $this->extensions->get($key)->toArray();
 			}
 			$arr['extensions'] = $extensions;
 		}

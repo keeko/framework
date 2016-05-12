@@ -1,8 +1,9 @@
 <?php
 namespace keeko\framework\tests\schema;
 
-use keeko\framework\schema\PackageSchema;
 use keeko\framework\schema\ActionSchema;
+use keeko\framework\schema\PackageSchema;
+use phootwork\collection\ArrayList;
 
 class KeekoSchemaTest extends \PHPUnit_Framework_TestCase {
 	
@@ -64,6 +65,19 @@ class KeekoSchemaTest extends \PHPUnit_Framework_TestCase {
 		$module->addAction($action);
 
 		$this->assertEquals(1, $module->getActionNames()->size());
+	}
+	
+	public function testExtensions() {
+		$package = PackageSchema::fromFile(__DIR__ . '/fixture/module.json');
+		$module = $package->getKeeko()->getModule();
+		
+		$this->assertTrue($module->hasExtensions('module.dummy'));
+		$this->assertFalse($module->hasExtensions('module.another-dummy'));
+		
+		$this->assertEquals(['module.dummy'], $module->getExtensionKeys()->toArray());
+
+		$this->assertTrue($module->getExtensions('module.dummy') instanceof ArrayList);
+		$this->assertEquals(2, $module->getExtensions('module.dummy')->size());
 	}
 
 }

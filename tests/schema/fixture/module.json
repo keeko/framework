@@ -24,6 +24,15 @@
             "module": {
                 "title": "Dummy Module",
                 "class": "keeko\\module\\DummyModule",
+                "extensions": {
+                	"module.dummy": [{
+						"o1k1": "o1v1",
+						"o1k2": "o1v2"
+                	}, {
+						"o2k1": "o2v1",
+						"o2k2": "o2v2"
+                	}]
+                },
                 "actions": {
                     "dashboard": {
                         "title": "Admin overview",

@@ -5,6 +5,7 @@ use keeko\core\model\Extension;
 use keeko\core\model\ExtensionQuery;
 use phootwork\collection\Map;
 use phootwork\json\Json;
+use phootwork\collection\ArrayList;
 
 class ExtensionRegistry {
 	
@@ -25,13 +26,12 @@ class ExtensionRegistry {
 			$key = $ext->getKey();
 			$packageName = $ext->getPackage()->getName();
 			$data = Json::decode($ext->getData());
-			$data = is_array($data) ? $data : [$data];
 			
 			// add to global extensions
 			if (!$this->extensions->has($key)) {
-				$this->extensions->set($key, []);
+				$this->extensions->set($key, new ArrayList());
 			}
-			$this->extensions->set($key, array_merge($this->extensions->get($key), $data));
+			$this->extensions->get($key)->add($data);
 			
 			// add to package extensions
 			if (!$this->packages->has($packageName)) {
@@ -40,9 +40,9 @@ class ExtensionRegistry {
 			
 			$pkg = $this->packages->get($packageName);
 			if (!$pkg->has($key)) {
-				$pkg->set($key, []);
+				$pkg->set($key, new ArrayList());
 			}
-			$pkg->set($key, array_merge($pkg->get($key), $data));
+			$pkg->get($key)->add($data);
 		}
 	}
 
@@ -50,7 +50,7 @@ class ExtensionRegistry {
 	 * Returns the extension for the given key
 	 *
 	 * @param string $key
-	 * @return array
+	 * @return ArrayList
 	 */
 	public function getExtensions($key) {
 		if ($this->extensions->has($key)) {
@@ -65,7 +65,7 @@ class ExtensionRegistry {
 	 *
 	 * @param string $key
 	 * @param string $packageName
-	 * @return array
+	 * @return ArrayList
 	 */
 	public function getExtensionsByPackage($key, $packageName) {
 		if ($this->packages->has($packageName)) {

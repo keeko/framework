@@ -204,6 +204,7 @@ class InstallerApplication extends AbstractApplication {
 		$this->setPreference(SystemPreferences::PREF_USER_NAMES, SystemPreferences::VALUE_OPTIONAL);
 		$this->setPreference(SystemPreferences::PREF_USER_BIRTH, SystemPreferences::VALUE_OPTIONAL);
 		$this->setPreference(SystemPreferences::PREF_USER_SEX, SystemPreferences::VALUE_OPTIONAL);
+		$this->setPreference(SystemPreferences::PREF_USER_DISPLAY_NAME, SystemPreferences::DISPLAY_USERNAME);
 
 		// 3) modules
 		$this->installModule('keeko/core');

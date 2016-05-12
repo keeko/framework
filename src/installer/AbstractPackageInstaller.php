@@ -62,8 +62,8 @@ abstract class AbstractPackageInstaller {
 		ExtensionQuery::create()->filterByPackage($model)->delete();
 		
 		// add them one by one
-		foreach ($pkg->getAllExtensions()->keys() as $key) {
-			foreach ($pkg->getExtensions($key) as $data) {
+		foreach ($pkg->getAllExtensions() as $key => $exts) {
+			foreach ($exts as $data) {
 				$ext = new Extension();
 				$ext->setKey($key);
 				$ext->setData(Json::encode($data, Json::UNESCAPED_SLASHES));
