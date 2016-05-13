@@ -2,17 +2,17 @@
 namespace keeko\framework\validator;
 
 use keeko\framework\service\ServiceContainer;
-use Symfony\Component\Validator\Context\ExecutionContextFactory;
-use Symfony\Component\Validator\ConstraintValidatorInterface;
+use keeko\framework\utils\NameUtils;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidatorFactory;
 use Symfony\Component\Validator\ConstraintValidatorFactoryInterface;
-use keeko\framework\utils\NameUtils;
+use Symfony\Component\Validator\ConstraintValidatorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\ValidatorBuilder;
 
-abstract class ModelValidator {
+abstract class ModelValidator implements ValidatorInterface {
 	
 	/** @var ServiceContainer */
 	protected $service;
@@ -76,23 +76,25 @@ abstract class ModelValidator {
 	abstract protected function getValidations();
 	
 	public function validate($model) {
-		$factory = new ExecutionContextFactory($this->service->getTranslator());
+		$builder = new ValidatorBuilder();
+		$builder->setTranslator($this->service->getTranslator());
+		$validator = $builder->getValidator();
 		$validations = $this->getValidations();
 		$this->violations = new ConstraintViolationList();
 		
-		foreach ($validations as $options) {
-			$method = 'get' . NameUtils::toSnakeCase($options['column']);
+		foreach ($validations as $column => $validation) {
+			$constraints = [];
+			foreach ($validation as $options) {
+				$name = $options['constraint'];
+				unset($options['constraint']);
+				$constraints[] = $this->getConstraint($name, $options);
+			}
+
+			$method = 'get' . NameUtils::toStudlyCase($column);
 			$value = $model->$method();
 			
-			$name = $options['constraint'];
-			$constraint = $this->getConstraint($name, $options);
-			$validator = $this->getValidator($constraint);
-			$context = $factory->createContext($validator, $options['column']);
-			
-			$validator->initialize($context);
-			$validator->validate($value, $constraint);
-			
-			$this->violations->addAll($context->getViolations());
+			$violations = $validator->validate($value, $constraints);
+			$this->violations->addAll($violations);
 		}
 		
 		return (Boolean) (!(count($this->violations) > 0));

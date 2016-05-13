@@ -65,7 +65,9 @@ abstract class AbstractKernel {
 			if (isset($listener['class']) && isset($listener['method']) && isset($listener['event'])) {
 				$className = $listener['class'];
 				$class = $getClass($className);
-				if ($class !== null && $class instanceof KeekoEventListenerInterface) {
+				if ($class !== null 
+						&& $class instanceof KeekoEventListenerInterface 
+						&& method_exists($class, $listener['method'])) {
 					$this->dispatcher->addListener($listener['event'], [$class, $listener['method']]);
 				}
 			}

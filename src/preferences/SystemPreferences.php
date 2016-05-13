@@ -29,6 +29,9 @@ class SystemPreferences extends Preferences {
 	
 	const PREF_USER_EMAIL = 'email_required';
 	
+	const PREF_USER_NORMALIZE_GIVEN_NAME = 'user_normalize_given_name';
+	const PREF_USER_NORMALIZE_FAMILY_NAME = 'user_normalize_family_name';
+	
 	// mailer
 	
 	const PREF_MAIL_TRANSPORT = 'mail_transport';
@@ -126,6 +129,24 @@ class SystemPreferences extends Preferences {
 	 * @var string
 	 */
 	const VALUE_NONE = 'none';
+	
+	/**
+	 * Value for normalizing names to titlecase
+	 * @var string
+	 */
+	const NORMALIZE_TITLECASE = 'titlecase';
+	
+	/**
+	 * Value for normalizing names to uppercase
+	 * @var string
+	 */
+	const NORMALIZE_UPPERCASE = 'uppercase';
+	
+	/**
+	 * Value for normalizing names to lowercase
+	 * @var string
+	 */
+	const NORMALIZE_LOWERCASE = 'lowercase';
 	
 	/**
 	 * Value for php mail transport
@@ -300,6 +321,34 @@ class SystemPreferences extends Preferences {
 	 */
 	public function getUserNickname() {
 		return $this->getBool(self::PREF_USER_NICKNAME);
+	}
+	
+	/**
+	 * Returns how given name is normalized
+	 * 
+	 * @see SystemPreferences::NORMALIZE_TITLECASE
+	 * @see SystemPreferences::NORMALIZE_UPPERCASE
+	 * @see SystemPreferences::NORMALIZE_LOWERCASE
+	 * @see SystemPreferences::VALUE_NONE
+	 * 
+	 * @return string
+	 */
+	public function getUserNormalizeGivenName() {
+		return $this->get(self::PREF_USER_NORMALIZE_GIVEN_NAME, self::VALUE_NONE);
+	}
+	
+	/**
+	 * Returns how family name is normalized
+	 *
+	 * @see SystemPreferences::NORMALIZE_TITLECASE
+	 * @see SystemPreferences::NORMALIZE_UPPERCASE
+	 * @see SystemPreferences::NORMALIZE_LOWERCASE
+	 * @see SystemPreferences::VALUE_NONE
+	 *
+	 * @return string
+	 */
+	public function getUserNormalizeFamilyName() {
+		return $this->get(self::PREF_USER_NORMALIZE_FAMILY_NAME, self::VALUE_NONE);
 	}
 	
 	/**

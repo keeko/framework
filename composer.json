@@ -47,13 +47,14 @@
 		"symfony/options-resolver" : "~3 || ~2",
 		"symfony/translation" : "~3 || ~2",
 		"symfony/event-dispatcher" : "~3 || ~2",
+		"symfony/validator" : "~3 || ~2",
 		"tobscure/json-api" : "~0",
 		"twig/twig" : "~1",
 		"keeko/core" : "dev-master@dev",
 		"willdurand/geocoder" : "^3.3",
 		"piwik/device-detector" : "^3.6",
 		"flow/jsonpath" : "^0.3.1",
-		"swiftmailer/swiftmailer": "^5.4"
+		"swiftmailer/swiftmailer" : "^5.4"
 	},
 	"require-dev" : {
 		"phpunit/phpunit" : "~4"

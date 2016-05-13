@@ -2,6 +2,7 @@
 namespace keeko\framework\foundation;
 
 use keeko\framework\service\ServiceContainer;
+use keeko\framework\validator\ValidatorInterface;
 
 abstract class AbstractDomain {
 		
@@ -21,4 +22,12 @@ abstract class AbstractDomain {
 		return $this->service;
 	}
 
+	/**
+	 * Returns a validator
+	 * 
+	 * @return ValidatorInterface
+	 */
+	protected function getValidator() {
+		return null;
+	}
 }
