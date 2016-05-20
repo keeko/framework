@@ -105,12 +105,35 @@ abstract class AbstractRouter {
 		foreach ($parts as $part) {
 			$kv = explode('=', $part);
 			if ($kv[0] != '') {
-				$params[$kv[0]] = count($kv) > 1
+				$value = count($kv) > 1
 					? $kv[1] == $this->options['param-true'] ? true
 					: ($kv[1] == $this->options['param-false'] ? false : $kv[1]) : true;
+				$params = $this->setParam($params, $kv[0], $value);
 			}
 		}
 		
+		return $params;
+	}
+	
+	private function setParam($params, $key, $value) {
+		// normalize key first
+		$key = str_replace(['][', '[', ']'], ['.', '.', ''], $key);
+		$parts = explode('.', $key);
+
+		// no array, just set and return
+		if (count($parts) == 1) {
+			$params[$parts[0]] = $value;
+			return $params;
+		}
+
+		// is array, go deep
+		$node = $parts[0];
+		if (!isset($params[$node]) || !is_array($params[$node])) {
+			$params[$node] = [];
+		}
+		array_shift($parts);
+		$key = implode('.', $parts);
+		$params[$node] = $this->setParam($params[$node], $key, $value);
 		return $params;
 	}
 

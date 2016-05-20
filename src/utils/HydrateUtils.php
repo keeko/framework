@@ -9,12 +9,15 @@ class HydrateUtils {
 		$converter = new PhpNameGenerator();
 		
 		foreach ($config as $key => $cb) {
-			if (is_string($cb)) {
+			$callback = false;
+			if (is_string($key)) {
+				$callback = true;
+			} else {
 				$key = $cb;
 			}
 			if (isset($data[$key])) {
 				$val = $data[$key];
-				if (is_callable($cb)) {
+				if (is_callable($cb) && $callback) {
 					$val = $cb($val);
 				}
 				

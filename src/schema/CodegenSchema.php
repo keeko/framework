@@ -51,29 +51,6 @@ class CodegenSchema extends RootSchema {
 	}
 	
 	/**
-	 * Returns the relationships for a model
-	 * 
-	 * @param string $modelName
-	 */
-	public function getRelationships($modelName) {
-		if ($this->models->has($modelName)
-				&& $this->models->get($modelName)->has('relationships')) {
-			return $this->models->get($modelName)->get('relationships');
-		}
-		return new Map();
-	}
-	
-	/**
-	 * Returns all write conversions
-	 *
-	 * @param string $modelName
-	 * @return array
-	 */
-	public function getWriteConversion($modelName) {
-		return $this->getArray($modelName, 'write', 'conversion');
-	}
-	
-	/**
 	 * Returns all write filters
 	 *
 	 * @param string $modelName
@@ -91,6 +68,33 @@ class CodegenSchema extends RootSchema {
 	 */
 	public function getReadFilter($modelName) {
 		return $this->getArray($modelName, 'read', 'filter');
+	}
+	
+	/**
+	 * Returns the relationships for a model
+	 *
+	 * @param string $modelName
+	 */
+	public function getRelationships($modelName) {
+		if ($this->models->has($modelName)
+				&& $this->models->get($modelName)->has('relationships')) {
+			return $this->models->get($modelName)->get('relationships');
+		}
+		return new Map();
+	}
+	
+	/**
+	 * Returns normalizer for a model
+	 * 
+	 * @param string $modelName
+	 * @return Map
+	 */
+	public function getNormalizer($modelName) {
+		if ($this->models->has($modelName)
+				&& $this->models->get($modelName)->has('normalizer')) {
+			return $this->models->get($modelName)->get('normalizer');
+		}
+		return new Map();
 	}
 	
 	/**

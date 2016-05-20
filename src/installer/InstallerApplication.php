@@ -187,7 +187,6 @@ class InstallerApplication extends AbstractApplication {
 		$accountUrl = $rootUrl . '/account/';
 		$this->installApp('keeko/account-app');
 		$this->setupApp('keeko/account-app', $accountUrl, $locale);
-
 		
 		// 2) preferences
 		$core = $this->service->getPackageManager()->getComposerPackage('keeko/core');
@@ -215,6 +214,27 @@ class InstallerApplication extends AbstractApplication {
 		
 		$this->installModule('keeko/account');
 		$this->activateModule('keeko/account');
+		
+		
+		// just for local testing:
+		$this->installApp('iuf/junia-app');
+		$this->setupApp('iuf/junia-app', $rootUrl . '/junia/', $locale);
+		
+		$this->installModule('iuf/junia');
+		$this->activateModule('iuf/junia');
+		
+		$path = KEEKO_PATH . '/packages/iuf/junia/res/database/sql/keeko.sql';
+		if (file_exists($path)) {
+			$sql = file_get_contents($path);
+		
+			try {
+				$con = Propel::getConnection();
+				$stmt = $con->prepare($sql);
+				$stmt->execute();
+			} catch (\Exception $e) {
+				echo $e->getMessage();
+			}
+		}
 	}
 	
 	private function setPreference($key, $value) {
@@ -263,7 +283,7 @@ class InstallerApplication extends AbstractApplication {
 		$con = Propel::getConnection();
 		
 		foreach ($files as $file) {
-			$path = KEEKO_PATH . '/packages/keeko/core/database/' . $file;
+			$path = KEEKO_PATH . '/packages/keeko/core/res/database/' . $file;
 			
 			if (file_exists($path)) {
 				$sql = file_get_contents($path);
