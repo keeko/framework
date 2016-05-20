@@ -7,6 +7,7 @@ use keeko\core\model\ExtensionQuery;
 use keeko\core\model\Package;
 use keeko\core\model\PackageQuery;
 use keeko\framework\schema\KeekoPackageSchema;
+use keeko\framework\schema\PackageSchema;
 use keeko\framework\service\ServiceContainer;
 use phootwork\json\Json;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -53,6 +54,11 @@ abstract class AbstractPackageInstaller {
 		$this->updateExtensions($model, $pkg);
 	}
 	
+	/**
+	 * 
+	 * @param string $packageName
+	 * @return PackageSchema
+	 */
 	protected function getPackageSchema($packageName) {
 		return $this->service->getPackageManager()->getPackage($packageName);
 	}

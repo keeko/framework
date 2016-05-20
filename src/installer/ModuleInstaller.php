@@ -14,6 +14,7 @@ use keeko\core\model\GroupQuery;
 use keeko\core\model\Module;
 use keeko\core\model\ModuleQuery;
 use keeko\framework\events\ModuleEvent;
+use keeko\framework\foundation\ModuleManager;
 use keeko\framework\schema\ModuleSchema;
 use keeko\framework\service\ServiceContainer;
 use phootwork\json\Json;
@@ -52,10 +53,10 @@ class ModuleInstaller extends AbstractPackageInstaller {
 			$model->setSlug($pkg->getSlug());
 			$this->updatePackage($model, $pkg);
 			
-			// run module -> install
-			$className = $pkg->getClass();
-			$class = new $className($model, $this->service);
-			$class->install();
+			// run module -> install (moved to activate())
+// 			$className = $pkg->getClass();
+// 			$class = new $className($model, $this->service);
+// 			$class->install();
 			
 			$this->dispatcher->dispatch(ModuleEvent::INSTALLED, new ModuleEvent($model));
 		}
@@ -68,13 +69,13 @@ class ModuleInstaller extends AbstractPackageInstaller {
 		$model = ModuleQuery::create()->findOneByName($packageName);
 		$this->updatePackage($model, $packageName);
 		
-		// run module -> update
-		$className = $model->getClass();
-		$class = new $className($model, $this->service);
-		$class->update($from, $to);
-		
-		// update api and actions
 		if ($this->manager->isActivated($packageName)) {
+			// run module -> update
+			$className = $model->getClass();
+			$class = new $className($model, $this->service);
+			$class->update($from, $to);
+			
+			// update api and actions
 			$this->updateModule($model);
 		}
 		
@@ -107,6 +108,15 @@ class ModuleInstaller extends AbstractPackageInstaller {
 		$model->save();
 		
 		$this->updateModule($model);
+		
+		// get module class
+		$package = $this->getPackageSchema($packageName);
+		$className = $package->getKeeko()->getModule()->getClass();
+		
+		$module = new $className($model, $this->service);
+		$module->install();
+		
+		$this->dispatcher->dispatch(ModuleEvent::ACTIVATED, new ModuleEvent($model));
 	}
 	
 	private function updateModule(Module $model) {
@@ -238,8 +248,17 @@ class ModuleInstaller extends AbstractPackageInstaller {
 	public function deactivate(IOInterface $io, $packageName) {
 		$io->write('[Keeko] Deactivate Module: ' . $packageName);
 		
-		$mod = ModuleQuery::create()->filterByName($packageName)->findOne();
-		$mod->setActivatedVersion(null);
-		$mod->save();
+		$model = ModuleQuery::create()->filterByName($packageName)->findOne();
+		$model->setActivatedVersion(null);
+		$model->save();
+		
+		// run module -> uninstall()
+		$package = $this->getPackageSchema($packageName);
+		$className = $package->getKeeko()->getModule()->getClass();
+		
+		$module = new $className($model, $this->service);
+		$module->uninstall();
+
+		$this->dispatcher->dispatch(ModuleEvent::DEACTIVATED, new ModuleEvent($model));
 	}
 }

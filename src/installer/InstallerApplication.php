@@ -222,19 +222,6 @@ class InstallerApplication extends AbstractApplication {
 		
 		$this->installModule('iuf/junia');
 		$this->activateModule('iuf/junia');
-		
-		$path = KEEKO_PATH . '/packages/iuf/junia/res/database/sql/keeko.sql';
-		if (file_exists($path)) {
-			$sql = file_get_contents($path);
-		
-			try {
-				$con = Propel::getConnection();
-				$stmt = $con->prepare($sql);
-				$stmt->execute();
-			} catch (\Exception $e) {
-				echo $e->getMessage();
-			}
-		}
 	}
 	
 	private function setPreference($key, $value) {
