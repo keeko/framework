@@ -74,6 +74,7 @@ class CodegenSchema extends RootSchema {
 	 * Returns the relationships for a model
 	 *
 	 * @param string $modelName
+	 * @return Map
 	 */
 	public function getRelationships($modelName) {
 		if ($this->models->has($modelName)
@@ -150,5 +151,19 @@ class CodegenSchema extends RootSchema {
 	 */
 	public function getExcludedSerializer() {
 		return $this->getExcluded(self::EXCLUDED_SERIALIZER);
+	}
+	
+	/**
+	 * Returns additional includes for a given model
+	 * 
+	 * @param string $modelName
+	 * @return ArrayList
+	 */
+	public function getIncludes($modelName) {
+		if ($this->models->has($modelName)
+				&& $this->models->get($modelName)->has('includes')) {
+			return $this->models->get($modelName)->get('includes');
+		}
+		return new ArrayList();
 	}
 }

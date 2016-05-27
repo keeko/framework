@@ -145,10 +145,10 @@ abstract class AbstractModule {
 	 * Loads the given action
 	 *
 	 * @param Action|string $actionName
-	 * @param string $response the response type (e.g. html, json, ...)
+	 * @param string $format the response type (e.g. html, json, ...)
 	 * @return AbstractAction
 	 */
-	public function loadAction($nameOrAction, $response = null) {
+	public function loadAction($nameOrAction, $format = null) {
 		$model = null;
 		if ($nameOrAction instanceof Action) {
 			$model = $nameOrAction;
@@ -175,18 +175,18 @@ abstract class AbstractModule {
 		}
 		
 		// check if a response is given
-		if ($response !== null) {
-			if (!$action->hasResponse($response)) {
-				throw new ModuleException(sprintf('No Response (%s) given for Action (%s) in Module (%s)', $response, $actionName, $this->model->getName()));
+		if ($format !== null) {
+			if (!$action->hasResponder($format)) {
+				throw new ModuleException(sprintf('No Responder (%s) given for Action (%s) in Module (%s)', $format, $actionName, $this->model->getName()));
 			}
-			$responseClass = $action->getResponse($response);
+			$responseClass = $action->getResponder($format);
 			
 			if (!class_exists($responseClass)) {
-				throw new ModuleException(sprintf('Response (%s) not found in Module (%s)', $responseClass, $this->model->getName()));
+				throw new ModuleException(sprintf('Responder (%s) not found in Module (%s)', $responseClass, $this->model->getName()));
 			}
-			$response = new $responseClass($this);
+			$responder = new $responseClass($this);
 		} else {
-			$response = new NullResponder($this);
+			$responder = new NullResponder($this);
 		}
 		
 		// gets the action class
@@ -196,7 +196,7 @@ abstract class AbstractModule {
 			throw new ModuleException(sprintf('Action (%s) not found in Module (%s)', $className, $this->model->getName()));
 		}
 		
-		$class = new $className($model, $this, $response);
+		$class = new $className($model, $this, $responder);
 		
 		
 		// l10n

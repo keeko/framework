@@ -15,9 +15,10 @@ abstract class AbstractModelSerializer extends AbstractSerializer implements Mod
 	 */
 	protected function addRelationshipSelfLink(Relationship $relationship, $model, $related) {
 		$links = $relationship->getLinks();
-		$links = $links + [
+		$links = !is_array($links) ? [] : $links;
+		$links = array_merge($links, [
 			'self' => $this->getSelf($model) . '/relationships/' . $related
-		];
+		]);
 		$relationship->setLinks($links);
 		return $relationship;
 	}

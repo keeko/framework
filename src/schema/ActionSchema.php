@@ -1,8 +1,8 @@
 <?php
 namespace keeko\framework\schema;
 
-use phootwork\collection\ArrayList;
 use phootwork\collection\Map;
+use phootwork\collection\Set;
 
 class ActionSchema extends SubSchema {
 	
@@ -22,20 +22,20 @@ class ActionSchema extends SubSchema {
 	/** @var string */
 	private $class;
 
-	/** @var ArrayList<string> */
+	/** @var Set */
 	private $acl;
 	
-	/** @var ArrayList */
+	/** @var Set */
 	private $l10n;
 	
-	/** @var ArrayList */
+	/** @var Set */
 	private $scripts;
 	
-	/** @var ArrayList */
+	/** @var Set */
 	private $styles;
 	
-	/** @var Map<string, string> */
-	private $response;
+	/** @var Map */
+	private $responder;
 	
 	public function __construct($name, PackageSchema $package = null, $contents = []) {
 		$this->name = $name;
@@ -51,12 +51,12 @@ class ActionSchema extends SubSchema {
 		$this->title = $data->get('title', '');
 		$this->class = $data->get('class', '');
 		$this->description = $data->get('description', '');
-		
-		$this->acl = new ArrayList($data->get('acl', []));
-		$this->response = new Map($data->get('response', []));
-		$this->l10n = new ArrayList($data->get('l10n', []));
-		$this->scripts = new ArrayList($data->get('scripts', []));
-		$this->styles = new ArrayList($data->get('styles', []));
+
+		$this->acl = new Set($data->get('acl', []));
+		$this->responder = new Map($data->get('responder', []));
+		$this->l10n = new Set($data->get('l10n', []));
+		$this->scripts = new Set($data->get('scripts', []));
+		$this->styles = new Set($data->get('styles', []));
 	}
 	
 	public function toArray() {
@@ -65,7 +65,7 @@ class ActionSchema extends SubSchema {
 			'description' => $this->description,
 			'class' => $this->class,
 			'acl' => $this->acl->toArray(),
-			'response' => $this->response->toArray(),
+			'responder' => $this->responder->toArray(),
 			'l10n' => $this->l10n->toArray(),
 			'scripts' => $this->scripts->toArray(),
 			'styles' => $this->styles->toArray()
@@ -126,52 +126,53 @@ class ActionSchema extends SubSchema {
 		return $this;
 	}
 	
-	public function setAcl($groups) {
-		$this->acl = new ArrayList($groups);
+	public function setAcl(array $groups) {
+		$this->acl->clear();
+		$this->acl->addAll($groups);
 		return $this;
 	}
 	
 	/**
-	 * @return ArrayList
+	 * @return Set
 	 */
 	public function getAcl() {
 		return $this->acl;
 	}
 	
 	/**
-	 * Checks whether a response with the given type is present
+	 * Checks whether a responder with the given type is present
 	 * 
 	 * @param string $type
 	 * @return boolean
 	 */
-	public function hasResponse($type) {
-		return $this->response->has($type);
+	public function hasResponder($type) {
+		return $this->responder->has($type);
 	}
 	
-	public function setResponse($type, $class) {
-		$this->response->set($type, $class);
+	public function setResponder($type, $class) {
+		$this->responder->set($type, $class);
 	}
 	
-	public function getResponse($type) {
-		return $this->response->get($type);
+	public function getResponder($type) {
+		return $this->responder->get($type);
 	}
 	
 	/**
-	 * @return ArrayList
+	 * @return Set
 	 */
 	public function getL10n() {
 		return $this->l10n;
 	}
 	
 	/**
-	 * @return ArrayList
+	 * @return Set
 	 */
 	public function getScripts() {
 		return $this->scripts;
 	}
 	
 	/**
-	 * @return ArrayList
+	 * @return Set
 	 */
 	public function getStyles() {
 		return $this->styles;
