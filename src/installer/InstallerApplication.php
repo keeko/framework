@@ -22,21 +22,21 @@ use Propel\Runtime\Propel;
 use Symfony\Component\HttpFoundation\Request;
 
 class InstallerApplication extends AbstractApplication {
-	
+
 	const DEFAULT_LOCALE = 'en';
 
 	/** @var IOInterface */
 	private $io;
-	
+
 	/** @var PackageManager */
 	private $packageManager;
-	
+
 	/** @var AppInstaller */
 	private $appInstaller;
-	
+
 	/** @var ModuleInstaller */
 	private $moduleInstaller;
-	
+
 	/** @var ModuleManager */
 	private $moduleManager;
 
@@ -56,7 +56,7 @@ class InstallerApplication extends AbstractApplication {
 		if (!KEEKO_DATABASE_LOADED) {
 			throw new \Exception('Cannot install keeko - no database defined');
 		}
-		
+
 		$root = new Text($rootUrl);
 		if ($root->endsWith('/')) {
 			$rootUrl = $root->substring(0, -1);
@@ -69,16 +69,16 @@ class InstallerApplication extends AbstractApplication {
 		$this->installGroupsAndUsers();
 		$this->installKeeko($rootUrl, $locale);
 	}
-	
+
 	/**
 	 * Runs the main setup routine
 	 */
 	public function run(Request $request) {
 		$uri = $request->getUri();
-		
+
 		$this->install($uri, $request->getLocale());
 	}
-	
+
 	/**
 	 * Writes the database config
 	 *
@@ -88,7 +88,7 @@ class InstallerApplication extends AbstractApplication {
 	 * @param string $password
 	 */
 	public function writeConfig($host, $database, $user, $password) {
-		
+
 	}
 
 	/**
@@ -99,16 +99,16 @@ class InstallerApplication extends AbstractApplication {
 	private function getLocale($locale) {
 		$langTag = \Locale::getPrimaryLanguage($locale);
 		$regionTag = \Locale::getRegion($locale);
-		
+
 		$lang = LanguageQuery::create()->findOneBySubtag($langTag);
 		$query = LocalizationQuery::create()->filterByLanguage($lang);
-		
+
 		if (!empty($regionTag)) {
 			$query->filterByRegion($regionTag);
 		}
-		
+
 		$local = $query->findOne();
-		
+
 		// if no locale found -> create one
 		if ($local === null) {
 			$local = new Localization();
@@ -122,34 +122,34 @@ class InstallerApplication extends AbstractApplication {
 
 		return $local;
 	}
-	
+
 	private function installGroupsAndUsers() {
 		$guestGroup = new Group();
 		$guestGroup->setName('Guest');
 		$guestGroup->setIsGuest(true);
 		$guestGroup->save();
-		
+
 		$userGroup = new Group();
 		$userGroup->setName('Users');
 		$userGroup->setIsDefault(true);
 		$userGroup->save();
-		
+
 		$adminGroup = new Group();
 		$adminGroup->setName('Administrators');
 		$adminGroup->save();
 
-		
+
 		$con = Propel::getConnection();
 		$adapter = Propel::getAdapter();
-		
+
 		// guest
 		$guest = new User();
 		$guest->setDisplayName('Guest');
 		$guest->save();
-		
+
 		$stmt = $con->prepare(sprintf('UPDATE %s SET id = -1 WHERE ID = 1', $adapter->quoteIdentifierTable(UserTableMap::TABLE_NAME)));
 		$stmt->execute();
-		
+
 		// root
 		$root = new User();
 		$root->setDisplayName('root');
@@ -159,44 +159,44 @@ class InstallerApplication extends AbstractApplication {
 
 		$stmt = $con->prepare(sprintf('UPDATE %s SET id = 0 WHERE ID = 2', $adapter->quoteIdentifierTable(UserTableMap::TABLE_NAME)));
 		$stmt->execute();
-		
+
 		$root = UserQuery::create()->findOneById(0);
 		$root->addGroup($userGroup);
 		$root->addGroup($adminGroup);
 		$root->save();
-		
+
 		// @TODO: Cross-SQL-Server routine wanted!!
 		$stmt = $con->prepare(sprintf('ALTER TABLE %s AUTO_INCREMENT = 1', $adapter->quoteIdentifierTable(UserTableMap::TABLE_NAME)));
 		$stmt->execute();
-		
+
 	}
 
 	private function installKeeko($rootUrl, $locale = self::DEFAULT_LOCALE) {
 		// 1) apps
-		
+
 		// api
 		$apiUrl = $rootUrl . '/api/';
 		$this->installApp('keeko/api-app');
 		$this->setupApp('keeko/api-app', $apiUrl, $locale);
-		
+
 		// developer
 		$this->installApp('keeko/developer-app');
 		$this->setupApp('keeko/developer-app', $rootUrl . '/developer/', $locale);
-		
+
 		// account
 		$accountUrl = $rootUrl . '/account/';
 		$this->installApp('keeko/account-app');
 		$this->setupApp('keeko/account-app', $accountUrl, $locale);
-		
+
 		// 2) preferences
 		$core = $this->service->getPackageManager()->getComposerPackage('keeko/core');
-		
+
 		$this->setPreference(SystemPreferences::PREF_VERSION, $core->getPrettyVersion());
 		$this->setPreference(SystemPreferences::PREF_PLATTFORM_NAME, 'Keeko');
 		$this->setPreference(SystemPreferences::PREF_API_URL, $apiUrl);
 		$this->setPreference(SystemPreferences::PREF_API_VERSION, '1');
 		$this->setPreference(SystemPreferences::PREF_ACCOUNT_URL, $accountUrl);
-		
+
 		// user prefs
 		$this->setPreference(SystemPreferences::PREF_USER_LOGIN, SystemPreferences::LOGIN_USERNAME);
 		$this->setPreference(SystemPreferences::PREF_USER_EMAIL, true);
@@ -208,22 +208,25 @@ class InstallerApplication extends AbstractApplication {
 		// 3) modules
 		$this->installModule('keeko/core');
 		$this->activateModule('keeko/core');
-		
+
 		$this->installModule('keeko/auth');
 		$this->activateModule('keeko/auth');
-		
+
 		$this->installModule('keeko/account');
 		$this->activateModule('keeko/account');
-		
-		
+
+
 		// just for local testing:
 		$this->installApp('iuf/junia-app');
 		$this->setupApp('iuf/junia-app', $rootUrl . '/junia/', $locale);
-		
+
 		$this->installModule('iuf/junia');
 		$this->activateModule('iuf/junia');
+
+		$this->installModule('gossi/trixionary');
+		$this->activateModule('gossi/trixionary');
 	}
-	
+
 	private function setPreference($key, $value) {
 		$pref = new Preference();
 		$pref->setKey($key);
@@ -234,17 +237,17 @@ class InstallerApplication extends AbstractApplication {
 	public function installApp($packageName) {
 		return $this->appInstaller->install($this->io, $packageName);
 	}
-	
+
 	public function setupApp($packageName, $uri, $locale = self::DEFAULT_LOCALE) {
 		$this->io->write(sprintf('[Keeko] Setup App %s at %s', $packageName, $uri));
 		$app = ApplicationQuery::create()->findOneByName($packageName);
-		
+
 		if ($app === null) {
 			throw new \Exception(sprintf('Application (%s) not found', $packageName));
 		}
-		
+
 		$comps = parse_url($uri);
-		
+
 		$uri = new ApplicationUri();
 		$uri->setApplication($app);
 		$uri->setLocalization($this->getLocale($locale));
@@ -253,7 +256,7 @@ class InstallerApplication extends AbstractApplication {
 		$uri->setSecure($comps['scheme'] == 'https');
 		$uri->save();
 	}
-	
+
 	public function installModule($packageName) {
 		$this->moduleInstaller->install($this->io, $packageName);
 	}
@@ -268,13 +271,13 @@ class InstallerApplication extends AbstractApplication {
 			'data/static-data.sql'
 		];
 		$con = Propel::getConnection();
-		
+
 		foreach ($files as $file) {
 			$path = KEEKO_PATH . '/packages/keeko/core/res/database/' . $file;
-			
+
 			if (file_exists($path)) {
 				$sql = file_get_contents($path);
-				
+
 				try {
 					$stmt = $con->prepare($sql);
 					$stmt->execute();

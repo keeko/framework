@@ -4,7 +4,7 @@
 	"description" : "Keeko core framework",
 	"license" : "MIT",
 	"authors" : [{
-			"name" : "gossi",
+			"name" : "Thomas Gossmann",
 			"homepage" : "http://gos.si"
 		}
 	],
@@ -24,7 +24,7 @@
 	"require" : {
 		"php" : ">=5.5.9",
 		"keeko/composer-installer" : "*",
-		"composer/composer" : "dev-master@dev",
+		"composer/composer" : "^1",
 		"propel/propel" : "2.0.0-alpha5@alpha",
 		"puli/composer-plugin" : "^1.0@beta",
 		"puli/repository" : "^1.0@beta",
