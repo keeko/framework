@@ -10,26 +10,26 @@ abstract class KeekoPackageSchema extends SubSchema {
 
 	/** @var string */
 	protected $title;
-	
+
 	/** @var string */
 	protected $class;
-	
+
 	/** @var Map */
 	protected $extensions;
-	
+
 	/** @var Map */
 	protected $extensionPoints;
-	
+
 	/**
 	 * @param array $contents
 	 */
 	protected function parse($contents = []) {
 		$data = new Map($contents);
-	
+
 		$this->title = $data->get('title', '');
 		$this->class = $data->get('class', '');
 		$this->extensionPoints = $data->get('extension-points', new Map());
-		
+
 		$this->extensions = new Map();
 		$extensions = CollectionUtils::toMap($data->get('extensions', []));
 		foreach ($extensions as $key => $val) {
@@ -40,7 +40,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 
 		return $data;
 	}
-	
+
 	public function toArray() {
 		$arr = [
 			'title' => $this->title,
@@ -54,32 +54,37 @@ abstract class KeekoPackageSchema extends SubSchema {
 		if ($this->extensions->size() > 0) {
 			$extensions = [];
 			foreach ($this->extensions->keys() as $key) {
-				$extensions[$key] = $this->extensions->get($key)->toArray();
+				$extensions[$key] = array_map(function ($v) {
+					if (is_object($v) && method_exists($v, 'toArray')) {
+						return $v->toArray();
+					}
+					return $v;
+				}, $this->extensions->get($key)->toArray());
 			}
 			$arr['extensions'] = $extensions;
 		}
 
 		return $arr;
 	}
-	
+
 	public function getTitle() {
 		return $this->title;
 	}
-	
+
 	public function setTitle($title) {
 		$this->title = $title;
 		return $this;
 	}
-	
+
 	public function getClass() {
 		return $this->class;
 	}
-	
+
 	public function setClass($class) {
 		$this->class = $class;
 		return $this;
 	}
-	
+
 	/**
 	 * Checks whether an extension with the given key exists
 	 *
@@ -89,7 +94,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	public function hasExtensions($key) {
 		return $this->extensions->has($key);
 	}
-	
+
 	/**
 	 * Returns the extensions for the given key
 	 *
@@ -99,16 +104,16 @@ abstract class KeekoPackageSchema extends SubSchema {
 	public function getExtensions($key) {
 		return $this->extensions->get($key);
 	}
-	
+
 	/**
 	 * Returns all extension keys
-	 * 
+	 *
 	 * @return Set
 	 */
 	public function getExtensionKeys() {
 		return $this->extensions->keys();
 	}
-	
+
 	/**
 	 * Returns all extensions
 	 *
@@ -117,7 +122,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	public function getAllExtensions() {
 		return $this->extensions;
 	}
-	
+
 	/**
 	 * Checks whether an extension point with the given key exists
 	 *
@@ -127,7 +132,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	public function hasExtensionPoint($key) {
 		return $this->extensionPoints->has($key);
 	}
-	
+
 	/**
 	 * Returns the path of the schema for the given key
 	 *
@@ -137,7 +142,7 @@ abstract class KeekoPackageSchema extends SubSchema {
 	public function getExtensionPoint($key) {
 		return $this->extensionPoints->get($key);
 	}
-	
+
 	/**
 	 * Returns all extension points
 	 *

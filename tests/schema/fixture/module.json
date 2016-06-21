@@ -38,8 +38,8 @@
                         "title": "Admin overview",
                         "class": "keeko\\module\\actions\\DashboardAction",
                         "acl": ["admin"],
-                        "response": {
-                            "json": "keeko\\module\\responses\\DashboardJsonResponse"
+                        "responder": {
+                            "json": "keeko\\module\\responder\\DashboardJsonResponder"
                         }
                     }
                 }
