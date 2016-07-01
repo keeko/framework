@@ -1,9 +1,6 @@
 <?php
 namespace keeko\framework\installer;
 
-use Composer\DependencyResolver\Operation\InstallOperation;
-use Composer\DependencyResolver\Operation\UninstallOperation;
-use Composer\DependencyResolver\Operation\UpdateOperation;
 use Composer\Package\PackageInterface;
 use Composer\Script\PackageEvent;
 
@@ -13,7 +10,7 @@ class DelegateInstaller {
 // 		if (!self::bootstrap()) {
 // 			return;
 // 		}
-		
+
 // 		$operation = $event->getOperation();
 // 		if ($operation instanceof InstallOperation) {
 // 			/* @var $operation InstallOperation */
@@ -27,7 +24,7 @@ class DelegateInstaller {
 // 		if (!self::bootstrap()) {
 // 			return;
 // 		}
-		
+
 // 		$operation = $event->getOperation();
 // 		if ($operation instanceof UpdateOperation) {
 // 			/* @var $operation UpdateOperation */
@@ -42,7 +39,7 @@ class DelegateInstaller {
 // 		if (!self::bootstrap()) {
 // 			return;
 // 		}
-		
+
 // 		$operation = $event->getOperation();
 // 		if ($operation instanceof UninstallOperation) {
 // 			$package = $operation->getPackage();
@@ -61,15 +58,15 @@ class DelegateInstaller {
 		switch ($package->getType()) {
 			case 'keeko-app':
 				return new AppInstaller();
-				
+
 			case 'keeko-module':
 				return new ModuleInstaller();
-				
+
 			default:
 				return new DummyInstaller();
 		}
 	}
-	
+
 	/**
 	 * Batch processing of install, update and uninstall operations
 	 *
@@ -82,7 +79,7 @@ class DelegateInstaller {
 		if (!KEEKO_DATABASE_LOADED) {
 			return;
 		}
-		
+
 		// do something
 	}
 }

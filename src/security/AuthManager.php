@@ -16,26 +16,26 @@ use phootwork\lang\ArrayObject;
 use Symfony\Component\HttpFoundation\Request;
 
 class AuthManager {
-	
+
 	/**
 	 * @var User
 	 */
 	private $user;
-	
+
 	/** @var Session */
 	private $session;
 
 	private $recognized = false;
-	
+
 	private $authenticated = false;
-	
+
 	/** @var SerivceContainer */
 	private $service;
-	
+
 	public function __construct(ServiceContainer $service) {
 		$this->service = $service;
 		$this->user = $this->getGuest();
-		
+
 		$request = Request::createFromGlobals();
 		$strategies = ['header', 'basic', 'cookie'];
 
@@ -46,23 +46,23 @@ class AuthManager {
 				$this->session = $session;
 				$this->user = $session->getUser();
 				$this->recognized = true;
-				
+
 				// update session
 				$session->setIp(null);
 				$session->setIp($request->getClientIp());
-				$session->save();			
+				$session->save();
 				break;
 			}
 		}
 	}
-	
+
 	private function getGuest() {
 		return UserQuery::create()->findOneById(-1);
 	}
-	
+
 	/**
 	 * Authenticates a user by a token in a cookie
-	 * 
+	 *
 	 * @param Request $request
 	 * @return Session|null
 	 */
@@ -76,7 +76,7 @@ class AuthManager {
 
 	/**
 	 * Authenticates a user by an authorization header
-	 * 
+	 *
 	 * @param Request $request
 	 * @return Session|null
 	 */
@@ -90,20 +90,20 @@ class AuthManager {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Authenticates a user with a token
-	 * 
+	 *
 	 * @param string $token
 	 * @return Session|null
 	 */
 	private function authToken($token) {
 		return SessionQuery::create()->findOneByToken($token);
 	}
-	
+
 	/**
 	 * Authenticates a user by basic authentication
-	 * 
+	 *
 	 * @param Request $request
 	 * @return Session|null
 	 */
@@ -115,12 +115,12 @@ class AuthManager {
 				$session = $this->createSession($user);
 			}
 			$this->authenticated = true;
-			
+
 			return $session;
 		}
 		return null;
 	}
-	
+
 	/**
 	 * TODO: Probably not the best location/method-name and response (throw an exception?)
 	 *
@@ -134,7 +134,7 @@ class AuthManager {
 		if ($user) {
 			$this->user = $user;
 			$this->recognized = true;
-			
+
 			if ($this->verifyUser($user, $password)) {
 				$this->authenticated = true;
 
@@ -142,15 +142,15 @@ class AuthManager {
 				if ($session === null) {
 					$session = $this->createSession($user);
 				}
-				
+
 				$this->session = $session;
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @param User $user
 	 * @return Session
@@ -170,12 +170,12 @@ class AuthManager {
 		$session->setDevice($detector->getDeviceName());
 		$session->setLocation($this->getLocation());
 		$session->save();
-		
+
 		return $session;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 * @return Session|null
 	 */
@@ -192,17 +192,26 @@ class AuthManager {
 			->filterByOs($detector->getOs('name'))
 			->findOne();
 	}
-	
+
+	/**
+	 * @param User $user
+	 * @param string $password
+	 * @return boolean
+	 */
 	public function verifyUser(User $user, $password) {
 		return password_verify($password, $user->getPassword());
 	}
-	
+
+	/**
+	 * @param string $password
+	 * @return string
+	 */
 	public function encryptPassword($password) {
 		return password_hash($password, PASSWORD_BCRYPT);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string $login
 	 * @return User|null
 	 */
@@ -210,22 +219,22 @@ class AuthManager {
 		$query = UserQuery::create();
 		$prefs = $this->service->getPreferenceLoader()->getSystemPreferences();
 		$mode = $prefs->getUserLogin();
-		
+
 		// login with username
 		if ($mode == SystemPreferences::LOGIN_USERNAME) {
 			$query = $query->filterByUserName($login);
 		}
-		
+
 		// login with email
 		else if ($mode == SystemPreferences::LOGIN_EMAIL) {
 			$query = $query->filterByEmail($login);
-		} 
-		
+		}
+
 		// login with username or email
 		else if ($mode == SystemPreferences::LOGIN_USERNAME_EMAIL) {
 			$query = $query->filterByEmail($login)->_or()->filterByUserName($login);
 		}
-		
+
 		// no mode found, return null
 		else {
 			return null;
@@ -245,7 +254,7 @@ class AuthManager {
 		$this->recognized = false;
 		$this->authenticated = false;
 		$this->session = null;
-		
+
 		return true;
 	}
 
@@ -253,22 +262,34 @@ class AuthManager {
 		return md5(uniqid(mt_rand(), true));
 	}
 
+	/**
+	 * @return User
+	 */
 	public function getUser() {
 		return $this->user;
 	}
-	
+
+	/**
+	 * @return Session
+	 */
 	public function getSession() {
 		return $this->session;
 	}
-	
+
+	/**
+	 * @return boolean
+	 */
 	public function isRecognized() {
 		return $this->recognized;
 	}
-	
+
+	/**
+	 * @return boolean
+	 */
 	public function isAuthenticated() {
 		return $this->authenticated;
 	}
-	
+
 	private function getLocation() {
 		$request = Request::createFromGlobals();
 		$adapter  = new CurlHttpAdapter();
@@ -277,9 +298,9 @@ class AuthManager {
 			new FreeGeoIp($adapter),
 			new GeoPlugin($adapter)
 		]);
-		
+
 		$location = 'n/a';
-		
+
 		try {
 			$result = $geocoder->geocode($request->getClientIp());
 			if ($result->count()) {
@@ -300,7 +321,7 @@ class AuthManager {
 				}
 			}
 		} catch (\Exception $e) {}
-		
+
 		return $location;
 	}
 }

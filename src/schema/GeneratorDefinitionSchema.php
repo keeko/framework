@@ -5,34 +5,38 @@ use phootwork\collection\CollectionUtils;
 use phootwork\collection\Map;
 use phootwork\collection\ArrayList;
 
-class CodegenSchema extends RootSchema {
-	
+class GeneratorDefinitionSchema extends RootSchema {
+
 	const EXCLUDED_ACTION = 'action';
 	const EXCLUDED_SERIALIZER = 'serializer';
 	const EXCLUDED_DOMAIN = 'domain';
 	const EXCLUDED_API = 'api';
 	const EXCLUDED_EMBER = 'ember';
-	
+
 	/** @var Map */
 	private $data;
-	
+
 	/** @var Map */
 	private $models;
-	
+
 	/** @var Map */
 	private $excluded;
-	
+
+	/** @var Map */
+	private $api;
+
 	public function __construct($contents = []) {
 		$this->parse($contents);
 	}
-	
+
 	private function parse($contents) {
 		$this->data = CollectionUtils::toMap($contents);
-		
+
 		$this->models = $this->data->get('models', new Map());
 		$this->excluded = $this->data->get('excluded', new Map());
+		$this->api = $this->data->get('api', new Map());
 	}
-	
+
 	/**
 	 *
 	 * @param string $modelName
@@ -49,7 +53,7 @@ class CodegenSchema extends RootSchema {
 
 		return [];
 	}
-	
+
 	/**
 	 * Returns all write filters
 	 *
@@ -59,7 +63,7 @@ class CodegenSchema extends RootSchema {
 	public function getWriteFilter($modelName) {
 		return $this->getArray($modelName, 'write', 'filter');
 	}
-	
+
 	/**
 	 * Returns all read filters
 	 *
@@ -69,7 +73,7 @@ class CodegenSchema extends RootSchema {
 	public function getReadFilter($modelName) {
 		return $this->getArray($modelName, 'read', 'filter');
 	}
-	
+
 	/**
 	 * Returns the relationships for a model
 	 *
@@ -83,10 +87,10 @@ class CodegenSchema extends RootSchema {
 		}
 		return new Map();
 	}
-	
+
 	/**
 	 * Returns normalizer for a model
-	 * 
+	 *
 	 * @param string $modelName
 	 * @return Map
 	 */
@@ -97,65 +101,65 @@ class CodegenSchema extends RootSchema {
 		}
 		return new Map();
 	}
-	
+
 	/**
 	 * Return the excluded models for a given section
-	 * 
+	 *
 	 * @param string $section
 	 * @return ArrayList
 	 */
 	public function getExcluded($section) {
 		return $this->excluded->get($section, new ArrayList());
 	}
-	
+
 	/**
 	 * Return the excluded models for action generation
-	 * 
+	 *
 	 * @return ArrayList
 	 */
 	public function getExcludedAction() {
 		return $this->getExcluded(self::EXCLUDED_ACTION);
 	}
-	
+
 	/**
 	 * Return the excluded models for api generation
-	 * 
+	 *
 	 * @return ArrayList
 	 */
 	public function getExcludedApi() {
 		return $this->getExcluded(self::EXCLUDED_API);
 	}
-	
+
 	/**
 	 * Return the excluded models for domain generation
-	 * 
+	 *
 	 * @return ArrayList
 	 */
 	public function getExcludedDomain() {
 		return $this->getExcluded(self::EXCLUDED_DOMAIN);
 	}
-	
+
 	/**
 	 * Return the excluded models for ember model generation
-	 * 
+	 *
 	 * @return ArrayList
 	 */
 	public function getExcludedEmber() {
 		return $this->getExcluded(self::EXCLUDED_EMBER);
 	}
-	
+
 	/**
 	 * Return the excluded models for serializer generation
-	 * 
+	 *
 	 * @return ArrayList
 	 */
 	public function getExcludedSerializer() {
 		return $this->getExcluded(self::EXCLUDED_SERIALIZER);
 	}
-	
+
 	/**
 	 * Returns additional includes for a given model
-	 * 
+	 *
 	 * @param string $modelName
 	 * @return ArrayList
 	 */
@@ -165,5 +169,14 @@ class CodegenSchema extends RootSchema {
 			return $this->models->get($modelName)->get('includes');
 		}
 		return new ArrayList();
+	}
+
+	/**
+	 * Returns the custom api section
+	 *
+	 * @return Map
+	 */
+	public function getApi() {
+		return $this->api;
 	}
 }
