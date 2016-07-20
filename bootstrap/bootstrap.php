@@ -7,8 +7,6 @@ use Monolog\Logger;
 use Propel\Runtime\Connection\ConnectionManagerSingle;
 use Propel\Runtime\Propel;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Config\Loader\DelegatingLoader;
-use Symfony\Component\Config\Loader\LoaderResolver;
 
 define('KEEKO_PRODUCTION', 'production');
 define('KEEKO_DEVELOPMENT', 'development');
@@ -19,14 +17,13 @@ $repo = $puli->getResourceRepository();
 
 // load config
 $locator = new FileLocator($repo->get('/config')->getFilesystemPath());
-$devConfig = new DevelopmentConfiguration($locator);
 $dbConfig = new DatabaseConfiguration($locator);
+$dbConfig->load('database.yaml');
+$devConfig = new DevelopmentConfiguration($locator);
 
-$loader = new DelegatingLoader(new LoaderResolver([$devConfig, $dbConfig]));
-try {
-	$loader->load('development.yaml');
-	$loader->load('database.yaml');
-} catch(\Exception $e) {}
+if ($repo->contains('/config/development.yaml')) {
+	$devConfig->load('development.yaml');
+}
 
 // development config
 define('KEEKO_ENVIRONMENT', $devConfig->isLoaded() ? KEEKO_DEVELOPMENT : KEEKO_PRODUCTION);
