@@ -23,8 +23,10 @@ $devConfig = new DevelopmentConfiguration($locator);
 $dbConfig = new DatabaseConfiguration($locator);
 
 $loader = new DelegatingLoader(new LoaderResolver([$devConfig, $dbConfig]));
-$loader->load('development.yaml');
-$loader->load('database.yaml');
+try {
+	$loader->load('development.yaml');
+	$loader->load('database.yaml');
+} catch(\Exception $e) {}
 
 // development config
 define('KEEKO_ENVIRONMENT', $devConfig->isLoaded() ? KEEKO_DEVELOPMENT : KEEKO_PRODUCTION);
