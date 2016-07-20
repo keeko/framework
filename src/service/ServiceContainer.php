@@ -25,70 +25,70 @@ use Puli\TwigExtension\PuliExtension;
 use Puli\TwigExtension\PuliTemplateLoader;
 use Puli\UrlGenerator\Api\UrlGenerator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use keeko\framework\kernel\WebKernel;
 
 class ServiceContainer {
 
 	/** @var PackageManager */
 	private $packageManager;
-	
+
 	/** @var ModuleManager */
 	private $moduleManager;
-	
+
 	/** @var AuthManager */
 	private $authManager;
-	
+
 	/** @var PreferenceLoader */
 	private $preferenceLoader;
-	
+
 	/** @var Firewall */
 	private $firewall;
-	
+
 	/** @var KeekoTranslator */
 	private $translator;
-	
+
 	/** @var LocaleService */
 	private $localeService;
-	
+
 	/** @var EventDispatcher */
 	private $dispatcher;
-	
+
 	/** @var AbstractKernel */
 	private $kernel;
-	
+
 	/** @var Twig_Environment */
 	private $twig;
-	
-	/** @var Puli\GeneratedPuliFactory */
-	private $puliFactory;
-	
-	/** @var ResourceRepository */
-	private $resourceRepository;
-	
-	/** @var Discovery */
-	private $resourceDiscovery;
-	
-	/** @var UrlGenerator */
-	private $urlGenerator;
-	
+
 	/** @var ExtensionRegistry */
 	private $extensionRegistry;
-	
+
 	/** @var SwiftMailer */
 	private $mailer;
-	
-	public function __construct(AbstractKernel $kernel) {
+
+	/** @var PuliService */
+	private $puliService;
+
+	public function __construct(PuliService $puli = null) {
+		if ($puli === null) {
+			$this->puliService = new PuliService();
+		} else {
+			$this->puliService = $puli;
+		}
+	}
+
+	public function setKernel(WebKernel $kernel) {
 		$this->kernel = $kernel;
 	}
-	
+
 	/**
 	 * Returns the kernel
 	 *
-	 * @return AbstractKernel
+	 * @return WebKernel
 	 */
 	public function getKernel() {
 		return $this->kernel;
 	}
-	
+
 	/**
 	 * Returns the event dispatcher
 	 *
@@ -98,10 +98,10 @@ class ServiceContainer {
 		if ($this->dispatcher === null) {
 			$this->dispatcher = new EventDispatcher();
 		}
-		
+
 		return $this->dispatcher;
 	}
-	
+
 	/**
 	 * Returns the package manager
 	 *
@@ -111,10 +111,10 @@ class ServiceContainer {
 		if ($this->packageManager === null) {
 			$this->packageManager = new PackageManager($this);
 		}
-		
+
 		return $this->packageManager;
 	}
-	
+
 	/**
 	 * Returns the module manager
 	 *
@@ -124,10 +124,10 @@ class ServiceContainer {
 		if ($this->moduleManager === null) {
 			$this->moduleManager = new ModuleManager($this);
 		}
-		
+
 		return $this->moduleManager;
 	}
-	
+
 	/**
 	 * Returns the auth manager
 	 *
@@ -137,10 +137,10 @@ class ServiceContainer {
 		if ($this->authManager === null) {
 			$this->authManager = new AuthManager($this);
 		}
-	
+
 		return $this->authManager;
 	}
-	
+
 	/**
 	 * Returns the preference loader
 	 *
@@ -150,10 +150,10 @@ class ServiceContainer {
 		if ($this->preferenceLoader === null) {
 			$this->preferenceLoader = new PreferenceLoader();
 		}
-		
+
 		return $this->preferenceLoader;
 	}
-	
+
 	/**
 	 * Returns the firewall
 	 *
@@ -163,87 +163,59 @@ class ServiceContainer {
 		if ($this->firewall === null) {
 			$this->firewall = new Firewall($this);
 		}
-		
+
 		return $this->firewall;
 	}
-	
+
 	/**
 	 * Returns the keeko translation service
 	 *
 	 * @return KeekoTranslator
 	 */
 	public function getTranslator() {
-		// TODO: how to get the language
 		if ($this->translator === null) {
-			$app = $this->getKernel()->getApplication();
-			$lang = $app->getLocalization()->getLanguage()->getAlpha2();
-			$this->translator = new KeekoTranslator($this, $lang);
+			$locale = $this->getLocaleService()->getLocale();
+			$this->translator = new KeekoTranslator($this, $locale);
 			$this->translator->addLoader('json', new KeekoJsonTranslationLoader($this));
 			$this->translator->setFallbackLocales(['en']);
 		}
-		
+
 		return $this->translator;
 	}
-	
+
 	public function getLocaleService() {
 		if ($this->localeService === null) {
 			$this->localeService = new LocaleService($this);
 		}
-		
+
 		return $this->localeService;
 	}
-	
-	/**
-	 *
-	 * @return Puli\GeneratedPuliFactory
-	 */
-	private function getPuliFactory() {
-		if ($this->puliFactory === null) {
-			$factoryClass = PULI_FACTORY_CLASS;
-			$this->puliFactory = new $factoryClass();
-		}
-		return $this->puliFactory;
-	}
-	
+
 	/**
 	 * Returns an instance to the puli repository
 	 *
 	 * @return ResourceRepository
 	 */
 	public function getResourceRepository() {
-		if ($this->resourceRepository === null) {
-			$this->resourceRepository = $this->getPuliFactory()->createRepository();
-		}
-		
-		return $this->resourceRepository;
+		return $this->puliService->getResourceRepository();
 	}
-	
+
 	/**
 	 * Returns an instance to the puli discovery
 	 *
 	 * @return Discovery
 	 */
 	public function getResourceDiscovery() {
-		if ($this->resourceDiscovery === null) {
-			$repo = $this->getResourceRepository();
-			$this->resourceDiscovery = $this->getPuliFactory()->createDiscovery($repo);
-		}
-		
-		return $this->resourceDiscovery;
+		return $this->puliService->getResourceDiscovery();
 	}
-	
+
 	/**
 	 * Returns the url generator for puli resources
 	 *
 	 * @return UrlGenerator
 	 */
 	public function getUrlGenerator() {
-		if ($this->urlGenerator === null) {
-			$discovery = $this->getResourceDiscovery();
-			$this->urlGenerator = $this->getPuliFactory()->createUrlGenerator($discovery);
-		}
-		
-		return $this->urlGenerator;
+		return $this->puliService->getUrlGenerator();
 	}
 
 	/**
@@ -261,36 +233,35 @@ class ServiceContainer {
 			$repo = $this->getResourceRepository();
 			$loader = new PuliTemplateLoader($repo);
 			$this->twig = new Twig_Environment($loader, $options);
-				
+
 			// puli extension
 			$generator = $this->getUrlGenerator();
 			$this->twig->addExtension(new PuliExtension($repo, $generator));
-	
+
 			// translator function
 			$translator = $this->getTranslator();
 			$trans = function($key, $params = [], $domain = null) use ($translator) {
 				return $translator->trans($key, $params, $domain);
 			};
 			$this->twig->addFunction(new Twig_SimpleFunction('t', $trans));
-		
+
 			// firewall
 			$firewall = $this->getFirewall();
 			$access = function ($module, $action) use ($firewall) {
 				return $firewall->hasPermission($module, $action);
 			};
-			
+
 			// debug
 			if (KEEKO_ENVIRONMENT == KEEKO_DEVELOPMENT) {
 				$this->twig->addExtension(new Twig_Extension_Debug());
 			}
-			
-			
-			$this->twig->addFunction(new Twig_SimpleFunction('hasPermission', $access));
+
+			$this->twig->addFunction(new Twig_SimpleFunction('can', $access));
 		}
-		
+
 		return $this->twig;
 	}
-	
+
 	/**
 	 * Returns the extension registry
 	 *
@@ -300,13 +271,13 @@ class ServiceContainer {
 		if ($this->extensionRegistry === null) {
 			$this->extensionRegistry = new ExtensionRegistry();
 		}
-		
+
 		return $this->extensionRegistry;
 	}
-	
+
 	/**
 	 * Returns the mailer to send emails
-	 * 
+	 *
 	 * @return Swift_Mailer
 	 */
 	public function getMailer() {
@@ -322,37 +293,37 @@ class ServiceContainer {
 						$transport->setEncryption($encryption);
 					}
 					break;
-					
+
 				case SystemPreferences::MAIL_TRANSPORT_SENDMAIL:
 					$transport = new Swift_SendmailTransport($prefs->getSendmail());
 					break;
-					
+
 				case SystemPreferences::MAIL_TRANSPORT_MAIL:
 				default:
 					$transport = new Swift_MailTransport();
 					break;
-			}			
-			
+			}
+
 			$this->mailer = new Swift_Mailer($transport);
 		}
-		
+
 		return $this->mailer;
 	}
-	
+
 	/**
 	 * Creates a new message, which can be send with a mailer
-	 * 
+	 *
 	 * @return Swift_Message
 	 */
 	public function createMessage() {
 		$prefs = $this->getPreferenceLoader()->getSystemPreferences();
-		
+
 		$message = new Swift_Message();
 		$sender = $prefs->getPlattformEmail();
 		if (!empty($sender)) {
 			$message->setFrom($prefs->getPlattformEmail(), $prefs->getPlattformName());
 		}
-		
+
 		return $message;
 	}
 }

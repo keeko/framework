@@ -13,7 +13,7 @@ use phootwork\file\Path;
 use phootwork\file\File;
 use phootwork\file\Directory;
 
-abstract class AbstractModule {
+abstract class AbstractModule implements PackageInterface {
 
 	/** @var Module */
 	protected $model;
@@ -167,6 +167,20 @@ abstract class AbstractModule {
 	}
 
 	/**
+	 * Returns the model for the given action name
+	 *
+	 * @param string $actionName
+	 * @return Action
+	 */
+	public function getActionModel($actionName) {
+		if (isset($this->actions[$actionName])) {
+			return $this->actions[$actionName]['model'];
+		}
+
+		return mull;
+	}
+
+	/**
 	 * Loads the given action
 	 *
 	 * @param Action|string $actionName
@@ -224,24 +238,24 @@ abstract class AbstractModule {
 		$class = new $className($model, $this, $responder);
 
 
-		// l10n
+		// locales
 		// ------------
 
 		$localeService = $this->getServiceContainer()->getLocaleService();
 
 		// load module l10n
-		$file = sprintf('/%s/locales/{locale}/module.json', $this->package->getFullName());
+		$file = sprintf('/%s/locales/{locale}/translations.json', $this->package->getFullName());
 		$localeService->loadLocaleFile($file, $class->getCanonicalName());
 
-		// load additional l10n files
-		foreach ($action->getL10n() as $file) {
-			$file = sprintf('/%s/locales/{locale}/%s', $this->package->getFullName(), $file);
-			$localeService->loadLocaleFile($file, $class->getCanonicalName());
-		}
+// 		// load additional l10n files
+// 		foreach ($action->getL10n() as $file) {
+// 			$file = sprintf('/%s/locales/{locale}/%s', $this->package->getFullName(), $file);
+// 			$localeService->loadLocaleFile($file, $class->getCanonicalName());
+// 		}
 
-		// load action l10n
-		$file = sprintf('/%s/locales/{locale}/actions/%s', $this->package->getFullName(), $actionName);
-		$localeService->loadLocaleFile($file, $class->getCanonicalName());
+// 		// load action l10n
+// 		$file = sprintf('/%s/locales/{locale}/actions/%s', $this->package->getFullName(), $actionName);
+// 		$localeService->loadLocaleFile($file, $class->getCanonicalName());
 
 
 		// assets

@@ -5,12 +5,11 @@ use keeko\core\model\ApplicationUri;
 use keeko\core\model\ApplicationUriQuery;
 use Symfony\Component\HttpFoundation\Request;
 use keeko\framework\exceptions\AppException;
+use phootwork\lang\Text;
 
 class ApplicationRouter implements RouteMatcherInterface {
 
 	private $destination;
-
-	private $prefix;
 
 	private $uri;
 
@@ -21,18 +20,6 @@ class ApplicationRouter implements RouteMatcherInterface {
 		return $this->destination;
 	}
 
-	public function getPrefix() {
-		return $this->prefix;
-	}
-
-	/**
-	 *
-	 * @return ApplicationUri
-	 */
-	public function getUri() {
-		return $this->uri;
-	}
-
 	/**
 	 *
 	 * @param Request $request
@@ -40,21 +27,26 @@ class ApplicationRouter implements RouteMatcherInterface {
 	 * @return ApplicationUri
 	 */
 	public function match($request) {
-		$uri = null;
-		// better loop. Maybe some priority on longer strings?
-		// Or strings with more slashes?
-		// better query on that?
-		$uris = ApplicationUriQuery::create()->joinApplication()->filterByHttphost($request->getHttpHost())->find();
 		$found = null;
-		
+		$uris = ApplicationUriQuery::create()
+			->joinApplication()
+			->filterByHttphost($request->getHttpHost())
+			->find();
+
+		$requestUri = new Text($request->getRequestUri());
 		foreach ($uris as $uri) {
-			$uri->setBasepath(rtrim($uri->getBasepath(), '/'));
-			$basepath = $uri->getBasepath();
-			if ((empty($basepath) && $request->getRequestUri() == '') || (strpos($request->getRequestUri(), $uri->getBasepath()) !== false)) {
-				// count slashes
+			$basepath = new Text($uri->getBasepath());
+
+			// either request uri and uri basepath are both empty
+			// or request uri starts with basepath
+			if (($basepath->isEmpty() && $requestUri->isEmpty()) || $requestUri->startsWith($basepath)) {
+				// assign when it's the first found
 				if ($found === null) {
 					$found = $uri;
-				} else if (substr_count($uri->getBasepath(), '/') > substr_count($found->getBasepath(), '/')) {
+				}
+
+				// count slashes of previously found vs newly found
+				else if ($basepath->count('/') > Text::create($found->getBasepath())->count('/')) {
 					$found = $uri;
 				}
 			}
@@ -65,8 +57,6 @@ class ApplicationRouter implements RouteMatcherInterface {
 		}
 
 		$this->destination = str_replace($found->getBasepath(), '', $request->getRequestUri());
-		$this->prefix = str_replace($request->getBasePath(), '', $found->getBasePath());
-		$this->uri = $found;
 
 		return $found;
 	}

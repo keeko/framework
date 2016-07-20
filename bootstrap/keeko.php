@@ -1,13 +1,13 @@
 <?php
-use keeko\framework\kernel\AppKernel;
+use keeko\framework\kernel\WebKernel;
 
-require_once __DIR__ . '/bootstrap.php';
+$puli = require_once __DIR__ . '/bootstrap.php';
 
 if (!KEEKO_DATABASE_LOADED) {
 	echo 'No database loaded. Please run install.';
 	exit;
 }
 
-$kernel = new AppKernel();
+$kernel = new WebKernel($puli);
 $response = $kernel->process();
 $response->send();

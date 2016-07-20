@@ -31,20 +31,29 @@ class Parameters extends BaseParameters {
 		$parts['page'] = $this->getInput('page', []);
 
 		// apply overwrites
-		$parts = array_merge($parts, $overwrites);
+		$parts = array_merge_recursive($parts, $overwrites);
 
 		// to string
 		$qs = [];
 		foreach ($parts as $key => $value) {
 			if (is_array($value)) {
-				foreach ($value as $k => $val) {
-					$qs[] = $key . '[' . $k . ']=' . $val;
-				}
+				$this->dataToQueryString($qs, $value, $key);
 			} else {
 				$qs[] = $key . '=' .$value;
 			}
 		}
 
 		return implode('&', $qs);
+	}
+
+	private function dataToQueryString(&$qs, array $data, $parentKey = '') {
+		foreach ($data as $key => $value) {
+			$var = sprintf('%s[%s]', $parentKey, $key);
+			if (is_array($value)) {
+				$this->dataToQueryString($qs, $value, $var);
+			} else {
+				$qs[] = $var . '=' . $value;
+			}
+		}
 	}
 }

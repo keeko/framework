@@ -14,7 +14,7 @@ use phootwork\collection\Map;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ModuleManager implements EventSubscriberInterface {
-	
+
 	/** @var Map */
 	private $loadedModules;
 
@@ -23,22 +23,22 @@ class ModuleManager implements EventSubscriberInterface {
 
 	/** @var Map */
 	private $installedModules;
-	
+
 	/** @var ServiceContainer */
 	private $service;
-	
+
 	public function __construct(ServiceContainer $service) {
 		$this->service = $service;
 		$this->loadedModules = new Map();
 		$this->activatedModules = new Map();
 		$this->installedModules = new Map();
-		
+
 		$dispatcher = $service->getDispatcher();
 		$dispatcher->addSubscriber($this);
-		
+
 		// load modules
 		$modules = ModuleQuery::create()->find();
-		
+
 		foreach ($modules as $module) {
 			$this->installedModules->set($module->getName(), $module);
 			if ($module->getActivatedVersion() !== null) {
@@ -46,11 +46,11 @@ class ModuleManager implements EventSubscriberInterface {
 			}
 		}
 	}
-	
+
 	protected function getServiceContainer() {
 		return $this->service;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -63,12 +63,12 @@ class ModuleManager implements EventSubscriberInterface {
 			ModuleEvent::DEACTIVATED => 'moduleDeactivated'
 		];
 	}
-	
+
 	public function moduleUninstalled(ModuleEvent $e) {
 		$module = $e->getModule();
 		$this->installedModules->remove($module->getName());
 	}
-	
+
 	public function moduleUpdated(ModuleEvent $e) {
 		$module = $e->getModule();
 		$this->installedModules->set($module->getName(), $module);
@@ -76,17 +76,17 @@ class ModuleManager implements EventSubscriberInterface {
 			$this->activatedModules->set($module->getName(), $module);
 		}
 	}
-	
+
 	public function moduleActivated(ModuleEvent $e) {
 		$module = $e->getModule();
 		$this->activatedModules->set($module->getName(), $module);
 	}
-	
+
 	public function moduleDeactivated(ModuleEvent $e) {
 		$module = $e->getModule();
 		$this->activatedModules->remove($module->getName());
 	}
-	
+
 	/**
 	 * Returns whether the given package name is an installed module
 	 *
@@ -96,7 +96,7 @@ class ModuleManager implements EventSubscriberInterface {
 	public function isInstalled($packageName) {
 		return $this->installedModules->has($packageName);
 	}
-	
+
 	/**
 	 * Returns whether the given package name is an activated module
 	 *
@@ -107,15 +107,15 @@ class ModuleManager implements EventSubscriberInterface {
 		return $this->activatedModules->has($packageName);
 	}
 
-	
+
 	// public function getInstalledModules() {
 	// return $this->installedModules;
 	// }
-	
+
 	// public function getActivatedModules() {
 	// return $this->activatedModules;
 	// }
-	
+
 	/**
 	 * Loads a module and returns the associated class or returns if already loaded
 	 *
@@ -127,33 +127,33 @@ class ModuleManager implements EventSubscriberInterface {
 		if ($this->loadedModules->has($packageName)) {
 			return $this->loadedModules->get($packageName);
 		}
-		
+
 		// check existence
 		if (!$this->installedModules->has($packageName)) {
 			throw new ModuleException(sprintf('Module (%s) does not exist.', $packageName), 500);
 		}
-		
+
 		// check activation
 		if (!$this->activatedModules->has($packageName)) {
 			throw new ModuleException(sprintf('Module (%s) not activated', $packageName), 501);
 		}
-		
+
 		$model = $this->activatedModules->get($packageName);
-		
+
 		if ($model->getInstalledVersion() > $model->getActivatedVersion()) {
 			throw new ModuleException(sprintf('Module Version Mismatch (%s). Module needs to be updated by the Administrator', $packageName), 500);
 		}
-		
+
 		// load
 		$className = $model->getClassName();
-		
+
 		/* @var $module AbstractModule */
 		$module = new $className($model, $this->service);
 		$this->loadedModules->set($packageName, $module);
-		
+
 		// load locale
 		$localeService = $this->getServiceContainer()->getLocaleService();
-		$file = sprintf('/%s/locales/{locale}/module.json', $packageName);
+		$file = sprintf('/%s/locales/{locale}/translations.json', $packageName);
 		$localeService->loadLocaleFile($file, $module->getCanonicalName());
 
 		return $module;
@@ -163,40 +163,40 @@ class ModuleManager implements EventSubscriberInterface {
 		if (!isset($data['actions'])) {
 			return;
 		}
-		
+
 		$actions = [];
-		
+
 		foreach ($data['actions'] as $name => $options) {
 			$a = new Action();
 			$a->setName($name);
 			$a->setModule($module);
-			
+
 			if (isset($options['title'])) {
 				$a->setTitle($options['title']);
 			}
-			
+
 			if (isset($options['description'])) {
 				$a->setDescription($options['description']);
 			}
-			
+
 			if (isset($options['class'])) {
 				$a->setClassName($options['class']);
 			}
-			
+
 			// add acl
 			if (isset($options['acl'])) {
 				foreach ($options['acl'] as $group) {
 					$a->addGroup($this->getGroup($group));
 				}
 			}
-			
+
 			$a->save();
 			$actions[$name] = $a->getId();
 		}
-		
+
 		return $actions;
 	}
-	
+
 	/**
 	 * @param string $name
 	 * @return Group
@@ -214,7 +214,7 @@ class ModuleManager implements EventSubscriberInterface {
 					$this->userGroup = GroupQuery::create()->filterByIsDefault(true)->findOne();
 				}
 				return $this->userGroup;
-				
+
 			case 'admin':
 				if ($this->adminGroup === null) {
 					$this->adminGroup = GroupQuery::create()->findOneById(3);
@@ -227,16 +227,16 @@ class ModuleManager implements EventSubscriberInterface {
 		if (!isset($data['api'])) {
 			return;
 		}
-		
+
 		if (!isset($data['api']['apis'])) {
 			return;
 		}
-		
+
 		$base = '/';
 		if (isset($data['api']['resourcePath'])) {
 			$base = $data['api']['resourcePath'];
 		}
-		
+
 		foreach ($data['api']['apis'] as $apis) {
 			$path = $apis['path'];
 			foreach ($apis['operations'] as $op) {
@@ -249,7 +249,7 @@ class ModuleManager implements EventSubscriberInterface {
 						}
 					}
 				}
-				
+
 				// create record
 				$fullPath = str_replace('//', '/', $base . '/' . $path);
 				$api = new Api();
@@ -260,22 +260,22 @@ class ModuleManager implements EventSubscriberInterface {
 				$api->save();
 			}
 		}
-		
+
 		$module->setApi(true);
 		$module->save();
 	}
 
 	public function deactivate($packageName) {
 		if (array_key_exists($packageName, $this->activatedModules) && !array_key_exists($packageName, $this->installedModules)) {
-			
+
 			$mod = ModuleQuery::create()->filterByName($packageName)->findOne();
 			$mod->setActivatedVersion(null);
 			$mod->save();
-			
+
 			unset($this->activatedModules[$packageName]);
 		}
 	}
-	
+
 	// /**
 	// * Returns wether a module was loaded
 	// *

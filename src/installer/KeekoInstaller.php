@@ -14,14 +14,11 @@ use keeko\core\model\Map\UserTableMap;
 use keeko\core\model\Preference;
 use keeko\core\model\User;
 use keeko\core\model\UserQuery;
-use keeko\framework\foundation\AbstractApplication;
 use keeko\framework\preferences\SystemPreferences;
 use keeko\framework\service\ServiceContainer;
-use phootwork\lang\Text;
 use Propel\Runtime\Propel;
-use Symfony\Component\HttpFoundation\Request;
 
-class InstallerApplication extends AbstractApplication {
+class KeekoInstaller {
 
 	const DEFAULT_LOCALE = 'en';
 
@@ -40,8 +37,11 @@ class InstallerApplication extends AbstractApplication {
 	/** @var ModuleManager */
 	private $moduleManager;
 
-	public function __construct(Application $model, ServiceContainer $service, IOInterface $io = null) {
-		parent::__construct($model, $service);
+	/** @var ServiceContainer */
+	private $service;
+
+	public function __construct(ServiceContainer $service, IOInterface $io = null) {
+		$this->service = $service;
 		$this->io = $io ?: new NullIO();
 	}
 
@@ -57,10 +57,7 @@ class InstallerApplication extends AbstractApplication {
 			throw new \Exception('Cannot install keeko - no database defined');
 		}
 
-		$root = new Text($rootUrl);
-		if ($root->endsWith('/')) {
-			$rootUrl = $root->substring(0, -1);
-		}
+		$rootUrl = rtrim($rootUrl, '/');
 
 		$this->io->write('Install Log:');
 
@@ -68,27 +65,6 @@ class InstallerApplication extends AbstractApplication {
 		$this->initialize();
 		$this->installGroupsAndUsers();
 		$this->installKeeko($rootUrl, $locale);
-	}
-
-	/**
-	 * Runs the main setup routine
-	 */
-	public function run(Request $request) {
-		$uri = $request->getUri();
-
-		$this->install($uri, $request->getLocale());
-	}
-
-	/**
-	 * Writes the database config
-	 *
-	 * @param string $host
-	 * @param string $database
-	 * @param string $user
-	 * @param string $password
-	 */
-	public function writeConfig($host, $database, $user, $password) {
-
 	}
 
 	/**
@@ -175,27 +151,30 @@ class InstallerApplication extends AbstractApplication {
 		// 1) apps
 
 		// api
-		$apiUrl = $rootUrl . '/api/';
+		$apiUrl = $rootUrl . '/api';
 		$this->installApp('keeko/api-app');
 		$this->setupApp('keeko/api-app', $apiUrl, $locale);
 
 		// developer
+		$developerUrl = $rootUrl . '/developer';
 		$this->installApp('keeko/developer-app');
-		$this->setupApp('keeko/developer-app', $rootUrl . '/developer/', $locale);
+		$this->setupApp('keeko/developer-app', $developerUrl, $locale);
 
 		// account
-		$accountUrl = $rootUrl . '/account/';
-		$this->installApp('keeko/account-app');
-		$this->setupApp('keeko/account-app', $accountUrl, $locale);
+		$accountUrl = $rootUrl . '/account';
+// 		$this->installApp('keeko/account-app');
+// 		$this->setupApp('keeko/account-app', $accountUrl, $locale);
 
 		// 2) preferences
 		$core = $this->service->getPackageManager()->getComposerPackage('keeko/core');
 
 		$this->setPreference(SystemPreferences::PREF_VERSION, $core->getPrettyVersion());
 		$this->setPreference(SystemPreferences::PREF_PLATTFORM_NAME, 'Keeko');
+		$this->setPreference(SystemPreferences::PREF_ROOT_URL, $rootUrl);
+		$this->setPreference(SystemPreferences::PREF_ACCOUNT_URL, $accountUrl);
+		$this->setPreference(SystemPreferences::PREF_DEVELOPER_URL, $developerUrl);
 		$this->setPreference(SystemPreferences::PREF_API_URL, $apiUrl);
 		$this->setPreference(SystemPreferences::PREF_API_VERSION, '1');
-		$this->setPreference(SystemPreferences::PREF_ACCOUNT_URL, $accountUrl);
 
 		// user prefs
 		$this->setPreference(SystemPreferences::PREF_USER_LOGIN, SystemPreferences::LOGIN_USERNAME);
@@ -214,17 +193,6 @@ class InstallerApplication extends AbstractApplication {
 
 		$this->installModule('keeko/account');
 		$this->activateModule('keeko/account');
-
-
-		// just for local testing:
-		$this->installApp('iuf/junia-app');
-		$this->setupApp('iuf/junia-app', $rootUrl . '/junia/', $locale);
-
-		$this->installModule('iuf/junia');
-		$this->activateModule('iuf/junia');
-
-		$this->installModule('gossi/trixionary');
-		$this->activateModule('gossi/trixionary');
 	}
 
 	private function setPreference($key, $value) {
@@ -270,21 +238,19 @@ class InstallerApplication extends AbstractApplication {
 			'sql/keeko.sql',
 			'data/static-data.sql'
 		];
-		$con = Propel::getConnection();
 
-		foreach ($files as $file) {
-			$path = KEEKO_PATH . '/packages/keeko/core/res/database/' . $file;
-
-			if (file_exists($path)) {
-				$sql = file_get_contents($path);
-
-				try {
+		try {
+			$repo = $this->service->getResourceRepository();
+			$con = Propel::getConnection();
+			foreach ($files as $file) {
+				if ($repo->contains('/keeko/core/database/' . $file)) {
+					$sql = $repo->get('/keeko/core/database/' . $file)->getBody();
 					$stmt = $con->prepare($sql);
 					$stmt->execute();
-				} catch (\Exception $e) {
-					echo $e->getMessage();
 				}
 			}
+		} catch (\Exception $e) {
+			echo $e->getMessage();
 		}
 	}
 }

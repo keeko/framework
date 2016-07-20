@@ -9,10 +9,10 @@ use phootwork\collection\Map;
 use phootwork\collection\Set;
 
 class Firewall {
-	
+
 	/** @var ServiceContainer */
 	private $service;
-	
+
 	/** @var Map */
 	private $permissionTable;
 
@@ -21,7 +21,15 @@ class Firewall {
 		$this->user = $service->getAuthManager()->getUser();
 		$this->permissionTable = new Map();
 	}
-	
+
+	/**
+	 * Checks the permission for the given module and action name
+	 *
+	 * @param string $module
+	 * @param string $action
+	 * @param User $user
+	 * @return bool
+	 */
 	public function hasPermission($module, $action, User $user = null) {
 		$module = $this->service->getModuleManager()->load($module);
 		$action = $module->getActionModel($action);
@@ -48,10 +56,10 @@ class Firewall {
 		if ($this->permissionTable->has($userId)) {
 			return $this->permissionTable->get($userId);
 		}
-		
+
 		// always allow what guests can do
 		$guestGroup = GroupQuery::create()->findOneByIsGuest(true);
-		
+
 		// collect groups from user
 		$groups = GroupQuery::create()->filterByUser($user)->find();
 		$userGroup = GroupQuery::create()->filterByOwnerId(($userId))->findOne();
@@ -59,7 +67,7 @@ class Firewall {
 			$groups[] = $userGroup;
 		}
 		$groups[] = $guestGroup;
-		
+
 		// ... structure them
 		$permissionTable = new Set();
 		foreach ($groups as $group) {
@@ -67,12 +75,12 @@ class Firewall {
 				$permissionTable->add($action->getId());
 			}
 		}
-		
+
 		$this->permissionTable->set($userId, $permissionTable);
-		
+
 		return $this->permissionTable->get($userId);
 	}
-	
+
 	private function isGuest(User $user) {
 		return $user->getId() === -1;
 	}

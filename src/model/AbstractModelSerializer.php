@@ -3,8 +3,6 @@ namespace keeko\framework\model;
 
 use keeko\framework\model\ModelSerializerInterface;
 use Tobscure\JsonApi\Relationship;
-use keeko\framework\utils\NameUtils;
-use Propel\Runtime\Collection\Collection;
 
 abstract class AbstractModelSerializer extends AbstractSerializer implements ModelSerializerInterface {
 
@@ -30,46 +28,6 @@ abstract class AbstractModelSerializer extends AbstractSerializer implements Mod
 		$attributes = $this->getAttributes($model);
 		return $id + $attributes;
 	}
-
-// 	protected function hydrateRelationships($model, $data) {
-// 		$relationships = isset($data['relationships']) ? $data['relationships'] : [];
-
-// 		foreach (array_keys($this->getRelationships()) as $rel) {
-// 			if (isset($relationships[$rel]) && isset($relationships[$rel]['data'])) {
-// 				if (isset($relationships[$rel]['data']['id'])) {
-// 					$this->hydrateToOneRelationship($rel, $model, $relationships[$rel]['data']);
-// 				} else {
-// 					$this->hydrateToManyRelationship($rel, $model, $relationships[$rel]['data']);
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	protected function hydrateToManyRelationship($rel, $model, $data) {
-// 		// set them all by once
-// 		$inferencer = $this->getTypeInferencer();
-// 		$method = 'set' . $this->getCollectionMethodPluralName($rel);
-// 		if (method_exists($model, $method)) {
-// 			$collection = new Collection();
-
-// 			foreach ($data as $item) {
-// 				if (isset($item['id']) && !empty($item['id'])) {
-// 					$queryClass = $inferencer->getQueryClass($item['type']);
-// 					$obj = $queryClass::create()->findOneById($item['id']);
-// 					$collection->append($obj);
-// 				}
-// 			}
-
-// 			$model->$method($collection);
-// 		}
-// 	}
-
-// 	protected function hydrateToOneRelationship($rel, $model, $data) {
-// 		$method = 'set' . NameUtils::toStudlyCase($rel) . 'Id';
-// 		if (method_exists($model, $method) && isset($data['id']) && !empty($data['id'])) {
-// 			$model->$method($data['id']);
-// 		}
-// 	}
 
 	/**
 	 * @return TypeInferencerInterface

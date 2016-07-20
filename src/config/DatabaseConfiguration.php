@@ -8,11 +8,12 @@ use Symfony\Component\Yaml\Yaml;
 class DatabaseConfiguration extends AbstractConfigurationLoader {
 
 	private $config;
-	
+
 	public function load($resource, $type = null) {
-		if (file_exists($resource)) {
+		$path = $this->locator->locate($resource);
+		if (file_exists($path)) {
 			$this->loaded = true;
-			$config = Yaml::parse($resource);
+			$config = Yaml::parse($path);
 			$processor = new Processor();
 			$this->config = $processor->processConfiguration(new DatabaseDefinition(), $config);
 		}

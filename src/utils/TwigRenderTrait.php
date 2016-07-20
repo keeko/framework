@@ -5,12 +5,12 @@ use Symfony\Component\HttpFoundation\Request;
 use keeko\framework\service\ServiceContainer;
 
 trait TwigRenderTrait {
-	
+
 	/**
 	 * @return ServiceContainer
 	 */
 	abstract public function getServiceContainer();
-	
+
 	private function getGlobalTwigVariables() {
 		$request = Request::createFromGlobals();
 		$prefs = $this->getServiceContainer()->getPreferenceLoader()->getSystemPreferences();
@@ -22,11 +22,12 @@ trait TwigRenderTrait {
 			],
 			'locations' => [
 				'uri' => $request->getUri(),
-				'root_url' => $app->getRootUrl(),
+				'root_url' => $prefs->getRootUrl(),
 				'account_url' => $prefs->getAccountUrl(),
-				'app_url' => $app->getAppUrl(),
-				'app_path' => $app->getAppPath(),
-				'destination' => $app->getDestinationPath()
+				'developer_url' => $prefs->getDeveloperUrl(),
+				'api_url' => $prefs->getApiUrl(),
+				'app_url' => $app->getBaseUrl(),
+				'destination' => $app->getDestination()
 			],
 			'user' => $user,
 			'page' => $app->getPage()

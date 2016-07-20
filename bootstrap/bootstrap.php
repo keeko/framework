@@ -1,12 +1,11 @@
 <?php
 use keeko\framework\config\DatabaseConfiguration;
 use keeko\framework\config\DevelopmentConfiguration;
-use keeko\framework\config\GeneralConfiguration;
+use keeko\framework\service\PuliService;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Propel\Runtime\Connection\ConnectionManagerSingle;
 use Propel\Runtime\Propel;
-use Symfony\Component\Config\Exception\FileLoaderLoadException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -14,22 +13,18 @@ use Symfony\Component\Config\Loader\LoaderResolver;
 define('KEEKO_PRODUCTION', 'production');
 define('KEEKO_DEVELOPMENT', 'development');
 
-define('KEEKO_PATH_CONFIG', KEEKO_PATH . DIRECTORY_SEPARATOR . 'config');
-define('KEEKO_PATH_PACKAGES', KEEKO_PATH . DIRECTORY_SEPARATOR . 'packages');
+// puli
+$puli = new PuliService();
+$repo = $puli->getResourceRepository();
 
 // load config
-$locator = new FileLocator(KEEKO_PATH_CONFIG);
+$locator = new FileLocator($repo->get('/config')->getFilesystemPath());
 $devConfig = new DevelopmentConfiguration($locator);
 $dbConfig = new DatabaseConfiguration($locator);
-$generalConfig = new GeneralConfiguration($locator);
-$loader = new DelegatingLoader(new LoaderResolver([$devConfig, $dbConfig, $generalConfig]));
 
-try {
-	$loader->load(KEEKO_PATH_CONFIG . '/development.yaml');
-	$loader->load(KEEKO_PATH_CONFIG . '/database.yaml');
-	$loader->load(KEEKO_PATH_CONFIG . '/general.yaml');
-} catch (FileLoaderLoadException $e) {}
-
+$loader = new DelegatingLoader(new LoaderResolver([$devConfig, $dbConfig]));
+$loader->load('development.yaml');
+$loader->load('database.yaml');
 
 // development config
 define('KEEKO_ENVIRONMENT', $devConfig->isLoaded() ? KEEKO_DEVELOPMENT : KEEKO_PRODUCTION);
@@ -37,7 +32,6 @@ define('KEEKO_ENVIRONMENT', $devConfig->isLoaded() ? KEEKO_DEVELOPMENT : KEEKO_P
 if (KEEKO_ENVIRONMENT == KEEKO_DEVELOPMENT) {
 	error_reporting(E_ALL | E_STRICT);
 }
-
 
 // database config
 define('KEEKO_DATABASE_LOADED', $dbConfig->isLoaded());
@@ -53,16 +47,16 @@ if ($dbConfig->isLoaded()) {
 	$manager->setName('keeko');
 	$serviceContainer->setConnectionManager('keeko', $manager);
 	$serviceContainer->setDefaultDatasource('keeko');
-	
+
 	// set utf-8
 	$con = Propel::getWriteConnection('keeko');
 	$con->exec('SET NAMES utf8 COLLATE utf8_unicode_ci, COLLATION_CONNECTION = utf8_unicode_ci, COLLATION_DATABASE = utf8_unicode_ci, COLLATION_SERVER = utf8_unicode_ci;');
 // 	$con->exec('SET SQL_SAFE_UPDATES=0;');
-	
+
 	if (KEEKO_ENVIRONMENT == KEEKO_DEVELOPMENT) {
 		$con->useDebug(true);
 		$logger = new Logger('defaultLogger');
-		
+
 		if ($devConfig->getPropelLogging() == 'stderr') {
 			$logger->pushHandler(new StreamHandler('php://stderr'));
 		}
@@ -71,5 +65,4 @@ if ($dbConfig->isLoaded()) {
 }
 unset($dbConfig);
 
-// general config
-define('KEEKO_PATH_FILES', KEEKO_PATH . DIRECTORY_SEPARATOR . $generalConfig->getPathsFiles());
+return $puli;

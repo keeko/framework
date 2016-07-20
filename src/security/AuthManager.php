@@ -17,6 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AuthManager {
 
+	const COOKIE_TOKEN_NAME = 'Keeko-Auth-Token';
+
 	/**
 	 * @var User
 	 */
@@ -67,9 +69,9 @@ class AuthManager {
 	 * @return Session|null
 	 */
 	private function authCookie(Request $request) {
-		if ($request->cookies->has('Bearer')) {
-			$bearer = $request->cookies->get('Bearer');
-			return $this->authToken($bearer);
+		if ($request->cookies->has(self::COOKIE_TOKEN_NAME)) {
+			$token = $request->cookies->get(self::COOKIE_TOKEN_NAME);
+			return $this->authToken($token);
 		}
 		return null;
 	}
@@ -84,8 +86,11 @@ class AuthManager {
 		if ($request->headers->has('authorization')) {
 			$auth = $request->headers->get('authorization');
 			if (!empty($auth)) {
-				list(, $bearer) = explode(' ', $auth);
-				return $this->authToken($bearer);
+				list(, $token) = explode(' ', $auth);
+				if (empty($token)) {
+					return null;
+				}
+				return $this->authToken($token);
 			}
 		}
 		return null;

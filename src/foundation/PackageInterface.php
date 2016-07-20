@@ -3,7 +3,7 @@ namespace keeko\framework\foundation;
 
 use keeko\core\model\Package;
 
-interface PackageEntityInterface {
+interface PackageInterface {
 	
 	/**
 	 * Returns the name

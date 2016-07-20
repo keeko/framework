@@ -1,21 +1,23 @@
 <?php
-namespace keeko\framework\kernel;
+namespace keeko\framework\page;
 
 use phootwork\collection\ArrayList;
 
 class Page {
 
-	private $styles;
+	private $links;
 	private $scripts;
-	
+	private $metas;
+
 	private $title;
 	private $titleSuffix;
 	private $titlePrefix;
 	private $defaultTitle;
-	
+
 	public function __construct() {
-		$this->styles = new ArrayList();
+		$this->links = new ArrayList();
 		$this->scripts = new ArrayList();
+		$this->metas = new ArrayList();
 	}
 
 	/**
@@ -32,14 +34,14 @@ class Page {
 		$this->title = $title;
 		return $this;
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	public function getDefaultTitle() {
 		return $this->defaultTitle;
 	}
-	
+
 	/**
 	 * @param string $title
 	 */
@@ -77,51 +79,84 @@ class Page {
 		$this->titlePrefix = $titlePrefix;
 		return $this;
 	}
-	
+
 	public function getFullTitle() {
 		if ($this->title === null) {
 			return $this->defaultTitle;
 		}
 		return trim($this->titlePrefix . ' ' . $this->title . ' ' . $this->titleSuffix);
 	}
-	
+
 	public function addStyle($style) {
-		if (!$this->styles->contains($style)) {
-			$this->styles->add($style);
+		if (is_string($style)) {
+			$link = new Link();
+			$link->setHref($style);
+			$link->setRel('stylesheet');
+			$link->setType('text/css');
+			$this->links->add($link);
+		} else if ($style instanceof Link) {
+			$this->links->add($style);
 		}
 		return $this;
 	}
-	
-	public function hasStyle($style) {
-		return $this->styles->contains($style);
-	}
-	
-	public function removeStyle($style) {
-		$this->styles->remove($style);
+
+	public function addStyles(array $styles) {
+		foreach ($styles as $style) {
+			$this->addStyle($style);
+		}
 		return $this;
 	}
-	
-	public function getStyles() {
-		return $this->styles->toArray();
+
+	/**
+	 * Returns a list of Link objects
+	 *
+	 * @return ArrayList
+	 */
+	public function getLinks() {
+		return $this->links;
 	}
-	
+
+	public function addLink(Link $link) {
+		$this->links->add($link);
+	}
+
 	public function addScript($script) {
-		if (!$this->scripts->contains($script)) {
+		if (is_string($script)) {
+			$tag = new Script();
+			$tag->setSrc($script);
+			$tag->setType('text/javascript');
+			$this->scripts->add($tag);
+		} else if ($script instanceof Script) {
 			$this->scripts->add($script);
 		}
 		return $this;
 	}
-	
-	public function hasScript($script) {
-		return $this->scripts->contains($script);
-	}
-	
-	public function removeScript($script) {
-		$this->scripts->remove($script);
+
+	public function addScripts(array $scripts) {
+		foreach ($scripts as $script) {
+			$this->addScript($script);
+		}
 		return $this;
 	}
-	
+
+	/**
+	 * Returns a list of Script objects
+	 * @return ArrayList
+	 */
 	public function getScripts() {
-		return $this->scripts->toArray();
+		return $this->scripts;
+	}
+
+	public function addMeta(Meta $meta) {
+		$this->metas->add($meta);
+	}
+
+	/**
+	 * Returns a list of meta objects
+	 *
+	 * @return ArrayList
+	 */
+	public function getMetas() {
+		return $this->metas;
 	}
 }
