@@ -50,7 +50,7 @@
 		"symfony/validator" : "~3 || ~2",
 		"tobscure/json-api" : "~0",
 		"twig/twig" : "~1",
-		"keeko/core" : "dev-master@dev",
+		"keeko/core" : "^0.2-beta@beta",
 		"willdurand/geocoder" : "^3.3",
 		"piwik/device-detector" : "^3.6",
 		"flow/jsonpath" : "^0.3.1",
