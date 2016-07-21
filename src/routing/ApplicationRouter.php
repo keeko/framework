@@ -33,13 +33,14 @@ class ApplicationRouter implements RouteMatcherInterface {
 			->filterByHttphost($request->getHttpHost())
 			->find();
 
-		$requestUri = new Text($request->getRequestUri());
+		$requestUri = Text::create($request->getRequestUri())->trimRight('/');
 		foreach ($uris as $uri) {
 			$basepath = new Text($uri->getBasepath());
 
 			// either request uri and uri basepath are both empty
 			// or request uri starts with basepath
-			if (($basepath->isEmpty() && $requestUri->isEmpty()) || $requestUri->startsWith($basepath)) {
+			if (($basepath->isEmpty() && $uri->getHttphost() == $request->getHttpHost())
+					|| $requestUri->startsWith($basepath)) {
 				// assign when it's the first found
 				if ($found === null) {
 					$found = $uri;

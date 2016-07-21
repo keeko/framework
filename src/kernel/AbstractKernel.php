@@ -8,9 +8,6 @@ use keeko\framework\service\PuliService;
 use keeko\framework\service\ServiceContainer;
 use phootwork\collection\Map;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Cookie;
-use keeko\core\model\ApplicationUriQuery;
 
 abstract class AbstractKernel {
 
