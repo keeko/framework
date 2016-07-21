@@ -26,9 +26,10 @@ abstract class AbstractDomain {
 	/**
 	 * Returns a validator
 	 *
+	 * @param mixed $model
 	 * @return ValidatorInterface
 	 */
-	protected function getValidator() {
+	protected function getValidator($model) {
 		return null;
 	}
 

@@ -1,7 +1,6 @@
 <?php
 namespace keeko\framework\normalizer;
 
-use keeko\framework\events\NormalizerInterface;
 use keeko\framework\service\ServiceContainer;
 
 abstract class AbstractNormalizer implements NormalizerInterface {

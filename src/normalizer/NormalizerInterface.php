@@ -1,5 +1,5 @@
 <?php
-namespace keeko\framework\events;
+namespace keeko\framework\normalizer;
 
 use keeko\framework\service\ServiceContainer;
 

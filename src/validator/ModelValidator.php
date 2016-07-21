@@ -83,18 +83,20 @@ abstract class ModelValidator implements ValidatorInterface {
 		$this->violations = new ConstraintViolationList();
 		
 		foreach ($validations as $column => $validation) {
-			$constraints = [];
-			foreach ($validation as $options) {
-				$name = $options['constraint'];
-				unset($options['constraint']);
-				$constraints[] = $this->getConstraint($name, $options);
-			}
-
 			$method = 'get' . NameUtils::toStudlyCase($column);
-			$value = $model->$method();
-			
-			$violations = $validator->validate($value, $constraints);
-			$this->violations->addAll($violations);
+			if (method_exists($model, $method)) {
+				$value = $model->$method();
+				
+				$constraints = [];
+				foreach ($validation as $options) {
+					$name = $options['constraint'];
+					unset($options['constraint']);
+					$constraints[] = $this->getConstraint($name, $options);
+				}
+				
+				$violations = $validator->validate($value, $constraints);
+				$this->violations->addAll($violations);
+			}
 		}
 		
 		return (Boolean) (!(count($this->violations) > 0));

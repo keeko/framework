@@ -129,7 +129,7 @@ class AuthManager {
 	/**
 	 * TODO: Probably not the best location/method-name and response (throw an exception?)
 	 *
-	 * @param string $username
+	 * @param string $login
 	 * @param string $password
 	 * @return boolean
 	 */
